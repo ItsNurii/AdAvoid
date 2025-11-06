@@ -5,23 +5,35 @@
 package adrover.antiads;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  *
  * @author nuria
  */
 public class Main extends javax.swing.JFrame {
-    
+
+    public javax.swing.JPanel mainPanel;
+    private EditPanel editPanel;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
-    private Main main;
-    
+    private final java.awt.Color lightBackground = new java.awt.Color(173, 216, 230); // light blue
+    private final java.awt.Color darkBackground = new java.awt.Color(40, 70, 130); //  dark blue
+    private final java.awt.Color lightText = java.awt.Color.BLACK;
+    private final java.awt.Color darkText = java.awt.Color.WHITE;
+
     /**
      * Creates new form Main
      */
     public Main() {
         initComponents();
         this.setSize(800, 600);
-         setLocationRelativeTo(this);
+        setLocationRelativeTo(this);
+        jCheckBoxMenuItemDark.setSelected(false); // uncheck dark mode
+        applyTheme(false);
+        mainPanel = (JPanel) getContentPane(); 
+        editPanel = new EditPanel();
+        jMenuItemPreferences.addActionListener(evt -> showEditPanel());
+        jMenuSettings.add(jMenuItemPreferences);
     }
 
     /**
@@ -38,12 +50,15 @@ public class Main extends javax.swing.JFrame {
         jTextFieldLink = new javax.swing.JTextField();
         jButtonSearch = new javax.swing.JButton();
         jProgressBar = new javax.swing.JProgressBar();
-        jLabelDownload = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextAreaDownload = new javax.swing.JTextArea();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuExit = new javax.swing.JMenu();
         jMenuItemExit = new javax.swing.JMenuItem();
         jMenuSettings = new javax.swing.JMenu();
         jCheckBoxMenuItemDark = new javax.swing.JCheckBoxMenuItem();
+        jMenuItemPreferences = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
         jMenuItemAbout = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -77,13 +92,16 @@ public class Main extends javax.swing.JFrame {
         getContentPane().add(jButtonSearch);
         jButtonSearch.setBounds(430, 100, 50, 30);
         getContentPane().add(jProgressBar);
-        jProgressBar.setBounds(150, 170, 330, 20);
+        jProgressBar.setBounds(150, 200, 330, 20);
 
-        jLabelDownload.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
-        getContentPane().add(jLabelDownload);
-        jLabelDownload.setBounds(150, 220, 340, 150);
+        jTextAreaDownload.setColumns(20);
+        jTextAreaDownload.setRows(5);
+        jScrollPane1.setViewportView(jTextAreaDownload);
 
-        jMenuExit.setText("X");
+        getContentPane().add(jScrollPane1);
+        jScrollPane1.setBounds(40, 260, 700, 230);
+
+        jMenuExit.setText("FIle");
 
         jMenuItemExit.setText("Exit");
         jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
@@ -95,11 +113,23 @@ public class Main extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenuExit);
 
-        jMenuSettings.setText("Settings");
+        jMenuSettings.setText("Edit");
 
         jCheckBoxMenuItemDark.setSelected(true);
         jCheckBoxMenuItemDark.setText("Dark/Clear");
+        jCheckBoxMenuItemDark.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxMenuItemDarkActionPerformed(evt);
+            }
+        });
         jMenuSettings.add(jCheckBoxMenuItemDark);
+
+        jMenuItemPreferences.setText("Preferences");
+        jMenuSettings.add(jMenuItemPreferences);
+
+        jMenuBar1.add(jMenuSettings);
+
+        jMenu1.setText("Help");
 
         jMenuItemAbout.setText("About");
         jMenuItemAbout.addActionListener(new java.awt.event.ActionListener() {
@@ -107,35 +137,78 @@ public class Main extends javax.swing.JFrame {
                 jMenuItemAboutActionPerformed(evt);
             }
         });
-        jMenuSettings.add(jMenuItemAbout);
+        jMenu1.add(jMenuItemAbout);
 
-        jMenuBar1.add(jMenuSettings);
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+public void showEditPanel() {
+        setContentPane(editPanel);
+        revalidate();
+        repaint();
+    }
 
+    private void applyTheme(boolean darkMode) {
+        java.awt.Color bg = darkMode ? darkBackground : lightBackground;
+        java.awt.Color fg = darkMode ? darkText : lightText;
+
+        getContentPane().setBackground(bg);
+        jLabelTitle.setForeground(fg);
+        jTextAreaDownload.setBackground(bg);
+        jTextAreaDownload.setForeground(fg);
+        jTextFieldLink.setBackground(java.awt.Color.WHITE);
+        jTextFieldLink.setForeground(java.awt.Color.BLACK);
+        jProgressBar.setBackground(bg);
+        jProgressBar.setForeground(java.awt.Color.BLUE);
+
+        // Optional: change button and menu colors
+        jButtonSearch.setBackground(darkMode ? new java.awt.Color(70, 130, 180) : new java.awt.Color(135, 206, 250));
+        jButtonSearch.setForeground(fg);
+        jMenuBar1.setBackground(bg);
+        jMenuBar1.setForeground(fg);
+    }
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
-       JOptionPane.showMessageDialog(this,
-                "Developed by Nuria Adrover\n"
-                + "Course: 2º DAM \n"
-                + "Resources used:\n"
-                + "- Logo: LogoDesigner\n"
-                + "- Other resources: Teacher, Classmates, ChatGPT");
+        AboutDialog about = new AboutDialog(this, true); // true = modal
+        about.setVisible(true);
     }//GEN-LAST:event_jMenuItemAboutActionPerformed
 
     private void jMenuItemExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemExitActionPerformed
-         System.exit(0);
+        System.exit(0);
     }//GEN-LAST:event_jMenuItemExitActionPerformed
 
     private void jButtonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSearchActionPerformed
-        // TODO add your handling code here:
+        String url = jTextFieldLink.getText().trim();
+
+        if (url.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid video link.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Prevent multiple downloads at once
+        jButtonSearch.setEnabled(false);
+        jProgressBar.setValue(0);
+        jTextAreaDownload.setText("Preparing download...\n");  // ✅ JTextArea, not JLabel
+
+        // Path to yt-dlp.exe
+        String ytDlpPath = "C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe";
+
+        // Output folder (Downloads)
+        String outputDir = System.getProperty("user.home") + "\\Downloads";
+
+        new DownloadWorker(ytDlpPath, url, outputDir).execute();
+
     }//GEN-LAST:event_jButtonSearchActionPerformed
 
     private void jTextFieldLinkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldLinkActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldLinkActionPerformed
+
+    private void jCheckBoxMenuItemDarkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItemDarkActionPerformed
+        applyTheme(jCheckBoxMenuItemDark.isSelected());
+    }//GEN-LAST:event_jCheckBoxMenuItemDarkActionPerformed
 
     /**
      * @param args the command line arguments
@@ -162,18 +235,94 @@ public class Main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> new Main().setVisible(true));
     }
 
+    private class DownloadWorker extends javax.swing.SwingWorker<Void, String> {
+
+        private final String ytDlpPath;
+        private final String url;
+        private final String outputDir;
+
+        public DownloadWorker(String ytDlpPath, String url, String outputDir) {
+            this.ytDlpPath = ytDlpPath;
+            this.url = url;
+            this.outputDir = outputDir;
+        }
+
+        @Override
+        protected Void doInBackground() {
+            try {
+                ProcessBuilder builder = new ProcessBuilder(
+                        ytDlpPath,
+                        "-f", "best",
+                        "--newline", // important: forces yt-dlp to print progress updates
+                        "-o", outputDir + "/%(title)s.%(ext)s",
+                        url
+                );
+                builder.redirectErrorStream(true);
+                Process process = builder.start();
+
+                try (java.io.BufferedReader reader = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(process.getInputStream(), "UTF-8"))) {
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        publish(line); // send line to process() method for UI update
+
+                        // Extract % to update progress bar
+                        if (line.contains("%")) {
+                            String percent = line.replaceAll(".*?(\\d{1,3}\\.\\d)%.*", "$1");
+                            try {
+                                int progress = (int) Float.parseFloat(percent);
+                                setProgress(progress);
+                            } catch (NumberFormatException ignored) {
+                            }
+                        }
+                    }
+                }
+
+                process.waitFor();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                javax.swing.SwingUtilities.invokeLater(()
+                        -> JOptionPane.showMessageDialog(Main.this,
+                                "Error during download:\n" + ex.getMessage(),
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE)
+                );
+            }
+            return null;
+        }
+
+        @Override
+        protected void process(java.util.List<String> lines) {
+            for (String line : lines) {
+                jTextAreaDownload.append(line + "\n"); // ✅ append each new line
+            }
+            jProgressBar.setValue(getProgress());
+        }
+
+        @Override
+        protected void done() {
+            jProgressBar.setValue(100);
+            jButtonSearch.setEnabled(true);
+            jTextAreaDownload.append("\n✅ Download completed successfully!\n");
+        }
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonSearch;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItemDark;
-    private javax.swing.JLabel jLabelDownload;
     private javax.swing.JLabel jLabelLogo;
     private javax.swing.JLabel jLabelTitle;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenu jMenuExit;
     private javax.swing.JMenuItem jMenuItemAbout;
     private javax.swing.JMenuItem jMenuItemExit;
+    private javax.swing.JMenuItem jMenuItemPreferences;
     private javax.swing.JMenu jMenuSettings;
     private javax.swing.JProgressBar jProgressBar;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextAreaDownload;
     private javax.swing.JTextField jTextFieldLink;
     // End of variables declaration//GEN-END:variables
 }
