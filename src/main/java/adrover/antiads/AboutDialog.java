@@ -20,27 +20,6 @@ public class AboutDialog extends javax.swing.JDialog {
         initComponents();
         this.setSize(400, 300);
         setLocationRelativeTo(parent);
-        getContentPane().setBackground(new java.awt.Color(173, 216, 230)); // light blue
-
-        // 🧩 Title style (same as EditPanel)
-        java.awt.Font titleFont = new java.awt.Font("Leelawadee UI", java.awt.Font.BOLD, 22);
-        jLabelTitle.setFont(titleFont);
-        jLabelTitle.setText("About AdVoid");
-        jLabelTitle.setForeground(java.awt.Color.BLACK);
-
-        // 🧠 Other label styles
-        java.awt.Font font = new java.awt.Font("Leelawadee UI", java.awt.Font.PLAIN, 14);
-        jLabelName.setFont(font);
-        jLabelCurse.setFont(font);
-        jLabelLogo.setFont(font);
-        jLabelResources.setFont(font);
-
-        jLabelName.setForeground(java.awt.Color.BLACK);
-        jLabelCurse.setForeground(java.awt.Color.BLACK);
-        jLabelLogo.setForeground(java.awt.Color.BLACK);
-        jLabelResources.setForeground(java.awt.Color.BLACK);
-
-        jButtonClose.setFont(font);
     }
 
     /**

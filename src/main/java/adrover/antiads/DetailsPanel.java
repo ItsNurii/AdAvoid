@@ -1,0 +1,233 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
+ */
+package adrover.antiads;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
+
+/**
+ *
+ * @author nuria
+ */
+public class DetailsPanel extends javax.swing.JPanel {
+
+    private File downloadFolder;
+    private List<File> mediaFiles;
+    private MediaTableModel tableModel;
+
+    /**
+     * Creates new form DetailsPanel
+     */
+    public DetailsPanel() {
+        this.setSize(800, 600);
+        initComponents();
+        tableModel = new MediaTableModel();
+        jTable.setModel(tableModel);
+
+        downloadFolder = new File(System.getProperty("user.home") + "\\Downloads");
+        mediaFiles = new ArrayList<>();
+       
+        // Load media initially
+        loadMediaFiles("All");
+
+        // 🔄 Refresh action
+        jButtonRefresh.addActionListener(e -> loadMediaFiles((String) jComboBox1.getSelectedItem()));
+
+        // 🗑️ Delete selected
+        jButtonDelete.addActionListener(e -> {
+            int idx = jList1.getSelectedIndex();
+            if (idx != -1) {
+                File f = mediaFiles.get(idx);
+                if (f.delete()) {
+                    JOptionPane.showMessageDialog(this, "File deleted: " + f.getName());
+                    loadMediaFiles((String) jComboBox1.getSelectedItem());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cannot delete file.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Select a file to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        // ⬅️ Return to Main JFrame
+        jButtonReturn.addActionListener(e -> {
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            if (topFrame instanceof Main mainFrame) {
+                mainFrame.setContentPane(mainFrame.mainPanel);
+                mainFrame.revalidate();
+                mainFrame.repaint();
+            }
+        });
+
+        // 🎚️ ComboBox filter action
+        jComboBox1.addActionListener(e -> loadMediaFiles((String) jComboBox1.getSelectedItem()));
+
+    }
+
+    private void loadMediaFiles(String filter) {
+        if (filter == null) {
+            filter = "All";
+        }
+        final String f = filter.toLowerCase();
+
+        File[] files = downloadFolder.listFiles((dir, name) -> {
+            String lname = name.toLowerCase();
+            if ("all".equals(f)) {
+                 return lname.endsWith(".mp3") || lname.endsWith(".mp4") || lname.endsWith(".mkv") || lname.endsWith(".webm");
+            } else {
+                return lname.endsWith(f);
+            }
+        });
+
+        mediaFiles = files != null ? Arrays.asList(files) : new ArrayList<>();
+
+        // Update JList
+        String[] names = mediaFiles.stream().map(File::getName).toArray(String[]::new);
+        jList1.setListData(names);
+
+        // Update JTable
+        tableModel.setFiles(mediaFiles);
+    }
+
+    private static class MediaTableModel extends AbstractTableModel {
+
+        private final String[] columns = {"Name", "Size (MB)", "Type", "Date Modified"};
+        private List<File> files = new ArrayList<>();
+        private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        public void setFiles(List<File> files) {
+            this.files = files;
+            fireTableDataChanged();
+        }
+
+        @Override
+        public int getRowCount() {
+            return files.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columns.length;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return columns[column];
+        }
+
+        @Override
+        public Object getValueAt(int row, int column) {
+            File f = files.get(row);
+            switch (column) {
+                case 0:
+                    return f.getName();
+                case 1:
+                    return String.format("%.2f", f.length() / (1024.0 * 1024.0));
+                case 2:
+                    return f.getName().endsWith(".mp4") ? "Video" : "Audio";
+                case 3:
+                    return sdf.format(new Date(f.lastModified()));
+                default:
+                    return null;
+            }
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jList1 = new javax.swing.JList<>();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jButtonDelete = new javax.swing.JButton();
+        jButtonRefresh = new javax.swing.JButton();
+        jButtonReturn = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable = new javax.swing.JTable();
+
+        setLayout(null);
+
+        jScrollPane2.setViewportView(jList1);
+
+        add(jScrollPane2);
+        jScrollPane2.setBounds(170, 20, 420, 120);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "MP3", "MP4", "MKV", "WEBM" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+        add(jComboBox1);
+        jComboBox1.setBounds(660, 30, 80, 30);
+
+        jButtonDelete.setText("Delete");
+        jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteActionPerformed(evt);
+            }
+        });
+        add(jButtonDelete);
+        jButtonDelete.setBounds(660, 240, 72, 23);
+
+        jButtonRefresh.setText("Refresh");
+        add(jButtonRefresh);
+        jButtonRefresh.setBounds(660, 200, 72, 23);
+
+        jButtonReturn.setText("Return");
+        add(jButtonReturn);
+        jButtonReturn.setBounds(330, 420, 72, 23);
+
+        jTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Size", "Myme type", "Date"
+            }
+        ));
+        jScrollPane3.setViewportView(jTable);
+
+        add(jScrollPane3);
+        jScrollPane3.setBounds(130, 170, 500, 240);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonDeleteActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonDelete;
+    private javax.swing.JButton jButtonRefresh;
+    private javax.swing.JButton jButtonReturn;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JList<String> jList1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JTable jTable;
+    // End of variables declaration//GEN-END:variables
+}

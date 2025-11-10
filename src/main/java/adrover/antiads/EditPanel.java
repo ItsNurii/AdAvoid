@@ -22,37 +22,7 @@ public class EditPanel extends javax.swing.JPanel {
     public EditPanel() {
         initComponents();
         this.setSize(800, 600);
-        setBackground(new Color(173, 216, 230)); // Light blue
-
-        // 🧩 Fonts and text
-        Font font = new Font("Leelawadee UI", Font.PLAIN, 14);
-        jLabelTitle.setText("Preferences");
-        jLabelTitle.setFont(new Font("Leelawadee UI", Font.BOLD, 22));
-
-        jLabelPath.setText("Path for temporary downloaded files:");
-        jLabelPath.setFont(font);
-
-        jLabelSpeed.setText("Limit download speed (MB/s):");
-        jLabelSpeed.setFont(font);
-
-        jLabelYtDlp.setText("Location of yt-dlp binary:");
-        jLabelYtDlp.setFont(font);
-
-        jCheckBoxM3U.setText("Create .m3u file for playlists");
-        jCheckBoxM3U.setBackground(new Color(173, 216, 230));
-        jCheckBoxM3U.setFont(font);
-
-        jButtonBrowse.setText("Browse...");
-        jButtonBack.setText("Back");
-        jButtonBrowse.setFont(font);
-        jButtonBack.setFont(font);
-
-        jTextFieldPath.setText("C:\\Users\\nuria\\Downloads\\Temp");
-        jTextFieldSpeed.setText("5");
-        jTextFieldYtDlp.setText("C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe");
-        jTextFieldPath.setFont(font);
-        jTextFieldSpeed.setFont(font);
-        jTextFieldYtDlp.setFont(font);
+       // jTextFieldYtDlp("C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe");
     }
 
     /**
@@ -68,7 +38,6 @@ public class EditPanel extends javax.swing.JPanel {
         jLabelPath = new javax.swing.JLabel();
         jTextFieldPath = new javax.swing.JTextField();
         jButtonBrowse = new javax.swing.JButton();
-        jCheckBoxM3U = new javax.swing.JCheckBox();
         jLabelSpeed = new javax.swing.JLabel();
         jTextFieldSpeed = new javax.swing.JTextField();
         jLabelYtDlp = new javax.swing.JLabel();
@@ -77,53 +46,49 @@ public class EditPanel extends javax.swing.JPanel {
 
         setLayout(null);
 
-        jLabelTitle.setText("title");
+        jLabelTitle.setText("Preferences");
         add(jLabelTitle);
         jLabelTitle.setBounds(320, 20, 220, 30);
 
-        jLabelPath.setText("path");
+        jLabelPath.setText("Path");
         add(jLabelPath);
         jLabelPath.setBounds(40, 60, 320, 40);
 
-        jTextFieldPath.setText("jTextField1");
+        jTextFieldPath.setText("C:\\Users\\nuria\\Downloads");
         add(jTextFieldPath);
         jTextFieldPath.setBounds(40, 100, 250, 40);
 
-        jButtonBrowse.setText("jButton1");
+        jButtonBrowse.setText("Browse");
         jButtonBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonBrowseActionPerformed(evt);
             }
         });
         add(jButtonBrowse);
-        jButtonBrowse.setBounds(500, 210, 90, 30);
+        jButtonBrowse.setBounds(100, 150, 90, 20);
 
-        jCheckBoxM3U.setText("jCheckBox1");
-        jCheckBoxM3U.addActionListener(new java.awt.event.ActionListener() {
+        jLabelSpeed.setText("Speed:");
+        add(jLabelSpeed);
+        jLabelSpeed.setBounds(30, 180, 250, 30);
+
+        jTextFieldSpeed.setText("5");
+        jTextFieldSpeed.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxM3UActionPerformed(evt);
+                jTextFieldSpeedActionPerformed(evt);
             }
         });
-        add(jCheckBoxM3U);
-        jCheckBoxM3U.setBounds(400, 70, 290, 40);
-
-        jLabelSpeed.setText("jLabel1");
-        add(jLabelSpeed);
-        jLabelSpeed.setBounds(40, 160, 250, 30);
-
-        jTextFieldSpeed.setText("jTextField1");
         add(jTextFieldSpeed);
-        jTextFieldSpeed.setBounds(30, 200, 280, 50);
+        jTextFieldSpeed.setBounds(30, 220, 280, 50);
 
-        jLabelYtDlp.setText("jLabel1");
+        jLabelYtDlp.setText("Location of yt-dlp binary:");
         add(jLabelYtDlp);
-        jLabelYtDlp.setBounds(400, 110, 210, 20);
+        jLabelYtDlp.setBounds(400, 160, 210, 20);
 
-        jTextFieldYtDlp.setText("jTextField1");
+        jTextFieldYtDlp.setText("C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe");
         add(jTextFieldYtDlp);
-        jTextFieldYtDlp.setBounds(400, 140, 340, 40);
+        jTextFieldYtDlp.setBounds(400, 190, 340, 40);
 
-        jButtonBack.setText("jButton1");
+        jButtonBack.setText("Return");
         jButtonBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonBackActionPerformed(evt);
@@ -150,15 +115,14 @@ public class EditPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonBackActionPerformed
 
-    private void jCheckBoxM3UActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxM3UActionPerformed
+    private void jTextFieldSpeedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSpeedActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jCheckBoxM3UActionPerformed
+    }//GEN-LAST:event_jTextFieldSpeedActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBack;
     private javax.swing.JButton jButtonBrowse;
-    private javax.swing.JCheckBox jCheckBoxM3U;
     private javax.swing.JLabel jLabelPath;
     private javax.swing.JLabel jLabelSpeed;
     private javax.swing.JLabel jLabelTitle;

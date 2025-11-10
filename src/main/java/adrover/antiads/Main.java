@@ -4,6 +4,7 @@
  */
 package adrover.antiads;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -13,13 +14,11 @@ import javax.swing.JPanel;
  */
 public class Main extends javax.swing.JFrame {
 
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
     public javax.swing.JPanel mainPanel;
     private EditPanel editPanel;
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
-    private final java.awt.Color lightBackground = new java.awt.Color(173, 216, 230); // light blue
-    private final java.awt.Color darkBackground = new java.awt.Color(40, 70, 130); //  dark blue
-    private final java.awt.Color lightText = java.awt.Color.BLACK;
-    private final java.awt.Color darkText = java.awt.Color.WHITE;
+    private java.io.File lastDownloadedFile;
+    private DetailsPanel detailsPanel;
 
     /**
      * Creates new form Main
@@ -28,12 +27,25 @@ public class Main extends javax.swing.JFrame {
         initComponents();
         this.setSize(800, 600);
         setLocationRelativeTo(this);
+        detailsPanel = new DetailsPanel();
+
         jCheckBoxMenuItemDark.setSelected(false); // uncheck dark mode
-        applyTheme(false);
-        mainPanel = (JPanel) getContentPane(); 
+        mainPanel = (JPanel) getContentPane();
         editPanel = new EditPanel();
         jMenuItemPreferences.addActionListener(evt -> showEditPanel());
         jMenuSettings.add(jMenuItemPreferences);
+
+        ButtonGroup formatGroup = new ButtonGroup();
+        formatGroup.add(jRadioButtonMP3);
+        formatGroup.add(jRadioButtonMP4);
+        jRadioButtonMP4.setSelected(true);
+
+        jButtonDetails.addActionListener(evt -> {
+            setContentPane(detailsPanel);
+            revalidate();
+            repaint();
+        });
+
     }
 
     /**
@@ -52,6 +64,10 @@ public class Main extends javax.swing.JFrame {
         jProgressBar = new javax.swing.JProgressBar();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextAreaDownload = new javax.swing.JTextArea();
+        jButtonReproduce = new javax.swing.JButton();
+        jRadioButtonMP3 = new javax.swing.JRadioButton();
+        jRadioButtonMP4 = new javax.swing.JRadioButton();
+        jButtonDetails = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuExit = new javax.swing.JMenu();
         jMenuItemExit = new javax.swing.JMenuItem();
@@ -92,14 +108,40 @@ public class Main extends javax.swing.JFrame {
         getContentPane().add(jButtonSearch);
         jButtonSearch.setBounds(430, 100, 50, 30);
         getContentPane().add(jProgressBar);
-        jProgressBar.setBounds(150, 200, 330, 20);
+        jProgressBar.setBounds(150, 170, 330, 20);
 
         jTextAreaDownload.setColumns(20);
         jTextAreaDownload.setRows(5);
         jScrollPane1.setViewportView(jTextAreaDownload);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(40, 260, 700, 230);
+        jScrollPane1.setBounds(50, 220, 700, 230);
+
+        jButtonReproduce.setText("Reproduce");
+        jButtonReproduce.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonReproduceActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButtonReproduce);
+        jButtonReproduce.setBounds(310, 470, 130, 20);
+
+        jRadioButtonMP3.setText(".mp3");
+        getContentPane().add(jRadioButtonMP3);
+        jRadioButtonMP3.setBounds(150, 140, 50, 21);
+
+        jRadioButtonMP4.setText(".mp4");
+        getContentPane().add(jRadioButtonMP4);
+        jRadioButtonMP4.setBounds(260, 140, 50, 21);
+
+        jButtonDetails.setText("Details");
+        jButtonDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDetailsActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButtonDetails);
+        jButtonDetails.setBounds(590, 170, 110, 23);
 
         jMenuExit.setText("FIle");
 
@@ -145,31 +187,12 @@ public class Main extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-public void showEditPanel() {
+    public void showEditPanel() {
         setContentPane(editPanel);
         revalidate();
         repaint();
     }
 
-    private void applyTheme(boolean darkMode) {
-        java.awt.Color bg = darkMode ? darkBackground : lightBackground;
-        java.awt.Color fg = darkMode ? darkText : lightText;
-
-        getContentPane().setBackground(bg);
-        jLabelTitle.setForeground(fg);
-        jTextAreaDownload.setBackground(bg);
-        jTextAreaDownload.setForeground(fg);
-        jTextFieldLink.setBackground(java.awt.Color.WHITE);
-        jTextFieldLink.setForeground(java.awt.Color.BLACK);
-        jProgressBar.setBackground(bg);
-        jProgressBar.setForeground(java.awt.Color.BLUE);
-
-        // Optional: change button and menu colors
-        jButtonSearch.setBackground(darkMode ? new java.awt.Color(70, 130, 180) : new java.awt.Color(135, 206, 250));
-        jButtonSearch.setForeground(fg);
-        jMenuBar1.setBackground(bg);
-        jMenuBar1.setForeground(fg);
-    }
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
         AboutDialog about = new AboutDialog(this, true); // true = modal
         about.setVisible(true);
@@ -187,10 +210,20 @@ public void showEditPanel() {
             return;
         }
 
+        String format;
+        if (jRadioButtonMP3.isSelected()) {
+            format = "bestaudio";
+        } else if (jRadioButtonMP4.isSelected()) {
+            format = "bestvideo+bestaudio";
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select MP3 or MP4 format.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         // Prevent multiple downloads at once
         jButtonSearch.setEnabled(false);
         jProgressBar.setValue(0);
-        jTextAreaDownload.setText("Preparing download...\n");  // ✅ JTextArea, not JLabel
+        jTextAreaDownload.setText("Preparing download...\n");
 
         // Path to yt-dlp.exe
         String ytDlpPath = "C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe";
@@ -198,7 +231,7 @@ public void showEditPanel() {
         // Output folder (Downloads)
         String outputDir = System.getProperty("user.home") + "\\Downloads";
 
-        new DownloadWorker(ytDlpPath, url, outputDir).execute();
+        new DownloadWorker(ytDlpPath, url, outputDir, format).execute();
 
     }//GEN-LAST:event_jButtonSearchActionPerformed
 
@@ -207,18 +240,24 @@ public void showEditPanel() {
     }//GEN-LAST:event_jTextFieldLinkActionPerformed
 
     private void jCheckBoxMenuItemDarkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItemDarkActionPerformed
-        applyTheme(jCheckBoxMenuItemDark.isSelected());
+
     }//GEN-LAST:event_jCheckBoxMenuItemDarkActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    private void jButtonReproduceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReproduceActionPerformed
+        if (lastDownloadedFile != null && lastDownloadedFile.exists()) {
+            try {
+                java.awt.Desktop.getDesktop().open(lastDownloadedFile);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Unable to open file:\n" + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "There is nothing to show.", "No Video",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -229,45 +268,58 @@ public void showEditPanel() {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Main().setVisible(true));
-    }
+    }//GEN-LAST:event_jButtonReproduceActionPerformed
 
+    private void jButtonDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDetailsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonDetailsActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
     private class DownloadWorker extends javax.swing.SwingWorker<Void, String> {
 
         private final String ytDlpPath;
         private final String url;
         private final String outputDir;
+        private final String format;
 
-        public DownloadWorker(String ytDlpPath, String url, String outputDir) {
+        public DownloadWorker(String ytDlpPath, String url, String outputDir, String format) {
             this.ytDlpPath = ytDlpPath;
             this.url = url;
             this.outputDir = outputDir;
+            this.format = format;
         }
 
         @Override
         protected Void doInBackground() {
             try {
+                String ext = format.equals("bestaudio") ? "mp3" : "mp4";
                 ProcessBuilder builder = new ProcessBuilder(
                         ytDlpPath,
-                        "-f", "best",
-                        "--newline", // important: forces yt-dlp to print progress updates
-                        "-o", outputDir + "/%(title)s.%(ext)s",
+                        "-f", format,
+                        "--extract-audio",
+                        "--audio-format", "mp3",
+                        "--output", outputDir + "/%(title)s." + ext,
                         url
                 );
+
+                // Remove audio-extract flags if downloading MP4
+                if (!format.equals("bestaudio")) {
+                    builder.command().remove("--extract-audio");
+                    builder.command().remove("--audio-format");
+                    builder.command().remove("mp3");
+                }
+
                 builder.redirectErrorStream(true);
                 Process process = builder.start();
 
                 try (java.io.BufferedReader reader = new java.io.BufferedReader(
                         new java.io.InputStreamReader(process.getInputStream(), "UTF-8"))) {
-
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        publish(line); // send line to process() method for UI update
-
-                        // Extract % to update progress bar
+                        publish(line);
                         if (line.contains("%")) {
                             String percent = line.replaceAll(".*?(\\d{1,3}\\.\\d)%.*", "$1");
                             try {
@@ -278,15 +330,12 @@ public void showEditPanel() {
                         }
                     }
                 }
-
                 process.waitFor();
             } catch (Exception ex) {
                 ex.printStackTrace();
                 javax.swing.SwingUtilities.invokeLater(()
-                        -> JOptionPane.showMessageDialog(Main.this,
-                                "Error during download:\n" + ex.getMessage(),
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE)
+                        -> JOptionPane.showMessageDialog(Main.this, "Error during download:\n" + ex.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE)
                 );
             }
             return null;
@@ -295,7 +344,7 @@ public void showEditPanel() {
         @Override
         protected void process(java.util.List<String> lines) {
             for (String line : lines) {
-                jTextAreaDownload.append(line + "\n"); // ✅ append each new line
+                jTextAreaDownload.append(line + "\n");
             }
             jProgressBar.setValue(getProgress());
         }
@@ -305,10 +354,22 @@ public void showEditPanel() {
             jProgressBar.setValue(100);
             jButtonSearch.setEnabled(true);
             jTextAreaDownload.append("\n✅ Download completed successfully!\n");
+
+            // ✅ Detect the latest downloaded video file
+            java.io.File folder = new java.io.File(outputDir);
+            java.io.File[] files = folder.listFiles((dir, name)
+                    -> name.endsWith(".mp4") || name.endsWith(".mkv") || name.endsWith(".webm"));
+            if (files != null && files.length > 0) {
+                java.util.Arrays.sort(files, java.util.Comparator.comparingLong(java.io.File::lastModified).reversed());
+                lastDownloadedFile = files[0]; // most recent video
+            }
         }
+
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonDetails;
+    private javax.swing.JButton jButtonReproduce;
     private javax.swing.JButton jButtonSearch;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItemDark;
     private javax.swing.JLabel jLabelLogo;
@@ -321,6 +382,8 @@ public void showEditPanel() {
     private javax.swing.JMenuItem jMenuItemPreferences;
     private javax.swing.JMenu jMenuSettings;
     private javax.swing.JProgressBar jProgressBar;
+    private javax.swing.JRadioButton jRadioButtonMP3;
+    private javax.swing.JRadioButton jRadioButtonMP4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaDownload;
     private javax.swing.JTextField jTextFieldLink;
