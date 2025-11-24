@@ -10,5 +10,12 @@
         <maven.compiler.release>24</maven.compiler.release>
         <exec.mainClass>adrover.antiads.AntiAds</exec.mainClass>
     </properties>
-    <name>AdVoid</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+    </dependencies>
 </project>

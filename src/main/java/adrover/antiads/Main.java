@@ -4,9 +4,15 @@
  */
 package adrover.antiads;
 
+import adrover.antiads.panels.EditPanel;
+import adrover.antiads.panels.DetailsPanel;
+import adrover.antiads.dialogs.AboutDialog;
+import adrover.antiads.login.LoginPanel;
+import adrover.antiads.login.TokenManager;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -19,19 +25,38 @@ public class Main extends javax.swing.JFrame {
     private EditPanel editPanel;
     private java.io.File lastDownloadedFile;
     private DetailsPanel detailsPanel;
+    private LoginPanel loginPanel;
 
-    /**
-     * Creates new form Main
-     */
+    //nuriadrover@di03.com
     public Main() {
         initComponents();
         this.setSize(800, 600);
         setLocationRelativeTo(this);
+
+        mainPanel = (JPanel) getContentPane();
+
+        // Create login panel with callback
+        loginPanel = new LoginPanel(() -> showMainPanel());
+
+        // Initialize other panels
         detailsPanel = new DetailsPanel();
+        editPanel = new EditPanel();
+
+        // Auto-login
+        SwingUtilities.invokeLater(() -> {
+            if (!tryAutoLogin()) {
+                showLoginPanel();
+            }
+        });
+
+        jButtonDetails.addActionListener(evt -> {
+            setContentPane(detailsPanel);
+            revalidate();
+            repaint();
+        });
 
         jCheckBoxMenuItemDark.setSelected(false); // uncheck dark mode
-        mainPanel = (JPanel) getContentPane();
-        editPanel = new EditPanel();
+
         jMenuItemPreferences.addActionListener(evt -> showEditPanel());
         jMenuSettings.add(jMenuItemPreferences);
 
@@ -40,12 +65,11 @@ public class Main extends javax.swing.JFrame {
         formatGroup.add(jRadioButtonMP4);
         jRadioButtonMP4.setSelected(true);
 
-        jButtonDetails.addActionListener(evt -> {
-            setContentPane(detailsPanel);
-            revalidate();
-            repaint();
+        jMenuItemLogout.addActionListener(evt -> {
+            TokenManager.deleteToken();
+            TokenManager.deleteCredentials();
+            showLoginPanel();
         });
-
     }
 
     /**
@@ -70,6 +94,7 @@ public class Main extends javax.swing.JFrame {
         jButtonDetails = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuExit = new javax.swing.JMenu();
+        jMenuItemLogout = new javax.swing.JMenuItem();
         jMenuItemExit = new javax.swing.JMenuItem();
         jMenuSettings = new javax.swing.JMenu();
         jCheckBoxMenuItemDark = new javax.swing.JCheckBoxMenuItem();
@@ -143,7 +168,15 @@ public class Main extends javax.swing.JFrame {
         getContentPane().add(jButtonDetails);
         jButtonDetails.setBounds(590, 170, 110, 23);
 
-        jMenuExit.setText("FIle");
+        jMenuExit.setText("File");
+
+        jMenuItemLogout.setText("Logout");
+        jMenuItemLogout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemLogoutActionPerformed(evt);
+            }
+        });
+        jMenuExit.add(jMenuItemLogout);
 
         jMenuItemExit.setText("Exit");
         jMenuItemExit.addActionListener(new java.awt.event.ActionListener() {
@@ -193,8 +226,29 @@ public class Main extends javax.swing.JFrame {
         repaint();
     }
 
+    private void showLoginPanel() {
+        setContentPane(loginPanel);
+        revalidate();
+        repaint();
+    }
+
+    private void showMainPanel() {
+        setContentPane(mainPanel);
+        revalidate();
+        repaint();
+    }
+
+    private boolean tryAutoLogin() {
+        String token = TokenManager.loadToken();
+        if (token != null && TokenManager.validate(token)) {
+            showMainPanel();
+            return true;
+        }
+        return false;
+    }
+
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
-        AboutDialog about = new AboutDialog(this, true); // true = modal
+        AboutDialog about = new AboutDialog(this, true);
         about.setVisible(true);
     }//GEN-LAST:event_jMenuItemAboutActionPerformed
 
@@ -274,6 +328,10 @@ public class Main extends javax.swing.JFrame {
     private void jButtonDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDetailsActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButtonDetailsActionPerformed
+
+    private void jMenuItemLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemLogoutActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItemLogoutActionPerformed
 
     /**
      * @param args the command line arguments
@@ -355,10 +413,10 @@ public class Main extends javax.swing.JFrame {
             jButtonSearch.setEnabled(true);
             jTextAreaDownload.append("\n✅ Download completed successfully!\n");
 
-            // ✅ Detect the latest downloaded video file
+            //Detect the latest downloaded video file
             java.io.File folder = new java.io.File(outputDir);
             java.io.File[] files = folder.listFiles((dir, name)
-                    -> name.endsWith(".mp4") || name.endsWith(".mkv") || name.endsWith(".webm"));
+                    -> name.endsWith(".mp4")); //|| name.endsWith(".mkv") || name.endsWith(".webm"));
             if (files != null && files.length > 0) {
                 java.util.Arrays.sort(files, java.util.Comparator.comparingLong(java.io.File::lastModified).reversed());
                 lastDownloadedFile = files[0]; // most recent video
@@ -379,6 +437,7 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JMenu jMenuExit;
     private javax.swing.JMenuItem jMenuItemAbout;
     private javax.swing.JMenuItem jMenuItemExit;
+    private javax.swing.JMenuItem jMenuItemLogout;
     private javax.swing.JMenuItem jMenuItemPreferences;
     private javax.swing.JMenu jMenuSettings;
     private javax.swing.JProgressBar jProgressBar;

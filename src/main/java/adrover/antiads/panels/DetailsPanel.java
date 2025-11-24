@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
-package adrover.antiads;
+package adrover.antiads.panels;
 
+import adrover.antiads.Main;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class DetailsPanel extends javax.swing.JPanel {
 
         downloadFolder = new File(System.getProperty("user.home") + "\\Downloads");
         mediaFiles = new ArrayList<>();
-       
+
         // Load media initially
         loadMediaFiles("All");
 
@@ -82,10 +83,20 @@ public class DetailsPanel extends javax.swing.JPanel {
 
         File[] files = downloadFolder.listFiles((dir, name) -> {
             String lname = name.toLowerCase();
-            if ("all".equals(f)) {
-                 return lname.endsWith(".mp3") || lname.endsWith(".mp4") || lname.endsWith(".mkv") || lname.endsWith(".webm");
-            } else {
-                return lname.endsWith(f);
+
+            switch (f) {
+                case "all":
+                    return lname.endsWith(".mp3") || lname.endsWith(".mp4")
+                            || lname.endsWith(".mkv") || lname.endsWith(".webm");
+
+                case "audio":
+                    return lname.endsWith(".mp3");
+
+                case "video":
+                    return lname.endsWith(".mp4") || lname.endsWith(".mkv") || lname.endsWith(".webm");
+
+                default:
+                    return true; // fallback
             }
         });
 
@@ -168,7 +179,7 @@ public class DetailsPanel extends javax.swing.JPanel {
         add(jScrollPane2);
         jScrollPane2.setBounds(170, 20, 420, 120);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "MP3", "MP4", "MKV", "WEBM" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Video", "Audio" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
