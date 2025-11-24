@@ -139,3 +139,13 @@ Return navigates back to the main window.
 .mkv (Video)
 
 .webm (Video)
+
+📌 Login System – Java Swing
+
+This project implements a Login System in Java Swing with support for:
+
+✔ Email + Password authentication
+✔ “Remember Me” persistent login
+✔ Auto-login on startup
+✔ Secure logout behavior
+✔ Dynamic panel switching (Login → Main Window → Login)
