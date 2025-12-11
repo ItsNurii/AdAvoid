@@ -8,17 +8,18 @@ import adrover.antiads.panels.EditPanel;
 import adrover.antiads.panels.DetailsPanel;
 import adrover.antiads.dialogs.AboutDialog;
 import adrover.antiads.login.LoginPanel;
-import adrover.antiads.login.TokenManager;
+import adrover.mediacomponent.ApiClient.Media;
+import adrover.mediacomponent.MediaEvent;
+import adrover.mediacomponent.MediaListener;
 import javax.swing.ButtonGroup;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 /**
  *
  * @author nuria
  */
-public class Main extends javax.swing.JFrame {
+public final class Main extends javax.swing.JFrame {
 
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
     public javax.swing.JPanel mainPanel;
@@ -27,7 +28,6 @@ public class Main extends javax.swing.JFrame {
     private DetailsPanel detailsPanel;
     private LoginPanel loginPanel;
 
-    //nuriadrover@di03.com
     public Main() {
         initComponents();
         this.setSize(800, 600);
@@ -35,19 +35,29 @@ public class Main extends javax.swing.JFrame {
 
         mainPanel = (JPanel) getContentPane();
 
-        // Create login panel with callback
-        loginPanel = new LoginPanel(() -> showMainPanel());
-
-        // Initialize other panels
-        detailsPanel = new DetailsPanel();
+        // Inicializar paneles
+        detailsPanel = new DetailsPanel(mediaComponent1);
         editPanel = new EditPanel();
+        loginPanel = new LoginPanel(this, mediaComponent1);
 
-        // Auto-login
-        SwingUtilities.invokeLater(() -> {
-            if (!tryAutoLogin()) {
-                showLoginPanel();
+        mediaComponent1.addMediaListener(new MediaListener() {
+            @Override
+            public void newMediaAdded(MediaEvent event) {
+                System.out.println(" NUEVO EVENTO: Nuevos archivos detectados:");
+                for (Media m : event.getNewMedia()) {
+                    System.out.print("-" + m.mediaFileName);
+                }
+                System.out.print("Fecha: " + event.getTimestamp());
             }
         });
+        // Auto-login
+        String savedToken = loginPanel.getSavedToken();
+
+        if (savedToken != null && !savedToken.isBlank()) {
+            startWithToken(savedToken);
+        } else {
+            showLoginPanel();
+        }
 
         jButtonDetails.addActionListener(evt -> {
             setContentPane(detailsPanel);
@@ -55,7 +65,7 @@ public class Main extends javax.swing.JFrame {
             repaint();
         });
 
-        jCheckBoxMenuItemDark.setSelected(false); // uncheck dark mode
+        jCheckBoxMenuItemDark.setSelected(false);
 
         jMenuItemPreferences.addActionListener(evt -> showEditPanel());
         jMenuSettings.add(jMenuItemPreferences);
@@ -66,8 +76,7 @@ public class Main extends javax.swing.JFrame {
         jRadioButtonMP4.setSelected(true);
 
         jMenuItemLogout.addActionListener(evt -> {
-            TokenManager.deleteToken();
-            TokenManager.deleteCredentials();
+            loginPanel.clearSavedAuth();
             showLoginPanel();
         });
     }
@@ -92,6 +101,7 @@ public class Main extends javax.swing.JFrame {
         jRadioButtonMP3 = new javax.swing.JRadioButton();
         jRadioButtonMP4 = new javax.swing.JRadioButton();
         jButtonDetails = new javax.swing.JButton();
+        mediaComponent1 = new adrover.mediacomponent.MediaComponent();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenuExit = new javax.swing.JMenu();
         jMenuItemLogout = new javax.swing.JMenuItem();
@@ -168,6 +178,12 @@ public class Main extends javax.swing.JFrame {
         getContentPane().add(jButtonDetails);
         jButtonDetails.setBounds(590, 170, 110, 23);
 
+        mediaComponent1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        mediaComponent1.setApiUrl("https://dimedianetapi9.azurewebsites.net");
+        mediaComponent1.setToken("");
+        getContentPane().add(mediaComponent1);
+        mediaComponent1.setBounds(30, 50, 40, 40);
+
         jMenuExit.setText("File");
 
         jMenuItemLogout.setText("Logout");
@@ -220,6 +236,34 @@ public class Main extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    public void startWithToken(String token) {
+
+        if (token == null || token.isBlank()) {
+            showLoginPanel();
+            return;
+        }
+        
+        detailsPanel.loadAllMedia();
+        // Mostrar panel principal
+        showMainPanel();
+    }
+
+    public void showDetailsPanel() {
+        if (mediaComponent1.getToken() == null || mediaComponent1.getToken().isBlank()) {
+            JOptionPane.showMessageDialog(this,
+                    "Debes iniciar sesión primero.",
+                    "Error 401", JOptionPane.ERROR_MESSAGE);
+            showLoginPanel();
+            return;
+        }
+
+        detailsPanel.loadAllMedia(); // refresca la lista con media actual
+        setContentPane(detailsPanel);
+        revalidate();
+        repaint();
+    }
+
     public void showEditPanel() {
         setContentPane(editPanel);
         revalidate();
@@ -232,20 +276,12 @@ public class Main extends javax.swing.JFrame {
         repaint();
     }
 
-    private void showMainPanel() {
+    public void showMainPanel() {
         setContentPane(mainPanel);
         revalidate();
         repaint();
     }
 
-    private boolean tryAutoLogin() {
-        String token = TokenManager.loadToken();
-        if (token != null && TokenManager.validate(token)) {
-            showMainPanel();
-            return true;
-        }
-        return false;
-    }
 
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
         AboutDialog about = new AboutDialog(this, true);
@@ -268,7 +304,7 @@ public class Main extends javax.swing.JFrame {
         if (jRadioButtonMP3.isSelected()) {
             format = "bestaudio";
         } else if (jRadioButtonMP4.isSelected()) {
-            format = "bestvideo+bestaudio";
+            format = "bestvideo";
         } else {
             JOptionPane.showMessageDialog(this, "Please select MP3 or MP4 format.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -446,5 +482,6 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaDownload;
     private javax.swing.JTextField jTextFieldLink;
+    private adrover.mediacomponent.MediaComponent mediaComponent1;
     // End of variables declaration//GEN-END:variables
 }

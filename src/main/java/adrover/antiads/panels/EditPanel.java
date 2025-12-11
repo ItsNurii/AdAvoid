@@ -5,8 +5,6 @@
 package adrover.antiads.panels;
 
 import adrover.antiads.Main;
-import java.awt.Color;
-import java.awt.Font;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
