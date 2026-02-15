@@ -5,12 +5,15 @@
 package adrover.antiads.login;
 
 import adrover.antiads.Main;
+import adrover.antiads.use.AppColor;
 import adrover.mediacomponent.MediaComponent;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -27,6 +30,10 @@ public class LoginPanel extends JPanel {
     private final MediaComponent mediaComponent;
     private Main parent;
 
+    private JLabel titleLabel;
+    private JLabel emailLabel;
+    private JLabel passwordLabel;
+
     // === Paths internos ===
     private final Path TOKEN_DIR = Path.of(System.getProperty("user.home"), ".advoid");
     private final Path TOKEN_FILE = TOKEN_DIR.resolve("token.txt");
@@ -40,32 +47,42 @@ public class LoginPanel extends JPanel {
         GridBagConstraints gc = new GridBagConstraints();
         gc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel title = new JLabel("Login");
-        title.setFont(new Font("Arial", Font.BOLD, 22));
+        titleLabel = new JLabel("Login");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        titleLabel.setForeground(Color.DARK_GRAY); // color por defecto
         gc.gridx = 0;
         gc.gridy = 0;
         gc.gridwidth = 2;
-        add(title, gc);
+        add(titleLabel, gc);
         gc.gridwidth = 1;
 
-        // Email
+        emailLabel = new JLabel(loadIcon("/images/usuario.png"));
+        emailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        emailLabel.setForeground(Color.DARK_GRAY);
         gc.gridx = 0;
         gc.gridy = 1;
-        add(new JLabel("Email:"), gc);
+        add(emailLabel, gc);
+
         emailField = new JTextField(20);
+        emailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gc.gridx = 1;
         add(emailField, gc);
 
-        // Password
+        passwordLabel = new JLabel(loadIcon("/images/cerrar.png"));
+        passwordLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        passwordLabel.setForeground(Color.DARK_GRAY);
         gc.gridx = 0;
         gc.gridy = 2;
-        add(new JLabel("Password:"), gc);
+        add(passwordLabel, gc);
+
         passwordField = new JPasswordField(20);
+        passwordField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gc.gridx = 1;
         add(passwordField, gc);
 
         // Remember me
         rememberCheck = new JCheckBox("Remember me");
+        rememberCheck.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         gc.gridx = 0;
         gc.gridy = 3;
         gc.gridwidth = 2;
@@ -74,6 +91,15 @@ public class LoginPanel extends JPanel {
 
         // Login button
         loginButton = new JButton("Login");
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        loginButton.setEnabled(false);
+        loginButton.setFocusPainted(false);
+        loginButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                BorderFactory.createEmptyBorder(5, 15, 5, 15)
+        ));
+        loginButton.setBackground(new Color(60, 150, 250));
+        loginButton.setForeground(Color.WHITE);
         gc.gridx = 0;
         gc.gridy = 4;
         gc.gridwidth = 2;
@@ -86,13 +112,88 @@ public class LoginPanel extends JPanel {
         add(statusLabel, gc);
 
         // Eventos
-        loginButton.addActionListener(e -> login());
+        DocumentListener docListener = new DocumentListener() {
+            void update() {
+                boolean enable = !emailField.getText().trim().isEmpty()
+                        && passwordField.getPassword().length > 0;
+                loginButton.setEnabled(enable);
+            }
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                update();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                update();
+            }
+        };
+        emailField.getDocument().addDocumentListener(docListener);
+        passwordField.getDocument().addDocumentListener(docListener);
+
+        loginButton.addActionListener(e -> {
+            if (emailField.getText().trim().isEmpty() || passwordField.getPassword().length == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "You cant login with empty fields!",
+                        "Empty fields", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            login();
+        });
 
         // Auto-login si ya existe token
         autoLoginIfTokenExists();
 
         // Cargar email + password guardados
         loadSavedCredentials();
+    }
+
+    private ImageIcon loadIcon(String path) {
+        java.net.URL url = getClass().getResource(path);
+        if (url == null) {
+            System.err.println("No se pudo cargar el icono: " + path);
+            return null;
+        }
+
+        Image img = new ImageIcon(url).getImage();
+        Image scaled = img.getScaledInstance(22, 22, Image.SCALE_SMOOTH);
+        return new ImageIcon(scaled);
+    }
+
+    public void applyTheme(boolean darkMode) {
+        Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
+        Color panel = darkMode ? AppColor.DARK_PANEL : AppColor.LIGHT_PANEL;
+        Color btn = darkMode ? new Color(80, 160, 255) : new Color(60, 150, 250);
+        Color text = darkMode ? Color.WHITE : Color.DARK_GRAY;
+
+        setBackground(bg);
+
+        // Labels
+        titleLabel.setForeground(text);
+        emailLabel.setForeground(text);
+        passwordLabel.setForeground(text);
+        statusLabel.setForeground(Color.RED);
+
+        // Campos
+        emailField.setBackground(panel);
+        emailField.setForeground(text);
+        passwordField.setBackground(panel);
+        passwordField.setForeground(text);
+
+        // Checkbox
+        rememberCheck.setBackground(bg);
+        rememberCheck.setForeground(text);
+
+        // Botón
+        loginButton.setBackground(btn);
+        loginButton.setForeground(Color.WHITE);
+        repaint();
     }
 
     public String getSavedToken() {
@@ -104,9 +205,6 @@ public class LoginPanel extends JPanel {
         deleteCredentials();
     }
 
-    // ============================================================
-    // 🔥 REEMPLAZO COMPLETO DE TOKENMANAGER (todo integrado aquí)
-    // ============================================================
     private void saveToken(String token) {
         try {
             Files.createDirectories(TOKEN_DIR);

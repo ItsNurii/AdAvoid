@@ -5,6 +5,17 @@
 package adrover.antiads.panels;
 
 import adrover.antiads.Main;
+import adrover.antiads.use.AppColor;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -15,13 +26,44 @@ import javax.swing.SwingUtilities;
  */
 public class EditPanel extends javax.swing.JPanel {
 
+    private final Dimension baseSize = new Dimension(800, 600);
+    private final Map<Component, Rectangle> baseBounds = new HashMap<>();
+
     /**
      * Creates new form EditPanel
      */
-    public EditPanel() {
+    public EditPanel(boolean darkMode) {
         initComponents();
         this.setSize(800, 600);
-       // jTextFieldYtDlp("C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe");
+        enableAutoResize();
+
+        // Fuentes
+        Font titleFont = new Font("Segoe UI", Font.BOLD, 28);
+        Font labelFont = new Font("Segoe UI", Font.PLAIN, 16);
+        Font textFieldFont = new Font("Segoe UI", Font.PLAIN, 14);
+        Font buttonFont = new Font("Segoe UI", Font.BOLD, 14);
+
+        // Labels
+        jLabelTitle.setFont(titleFont);
+        jLabelPath.setFont(labelFont);
+        jLabelSpeed.setFont(labelFont);
+        jLabelYtDlp.setFont(labelFont);
+
+        // TextFields
+        jTextFieldPath.setFont(textFieldFont);
+        jSpinnerTime.setFont(textFieldFont);
+        jTextFieldYtDlp.setFont(textFieldFont);
+
+        // Botones
+        jButtonBrowse.setFont(buttonFont);
+        jButtonBack.setFont(buttonFont);
+
+        // Opcional: cambiar estilo de los botones (por ejemplo, sin foco y borde plano)
+        jButtonBrowse.setFocusPainted(false);
+        jButtonBack.setFocusPainted(false);
+        jButtonBrowse.setBorder(BorderFactory.createRaisedBevelBorder());
+        jButtonBack.setBorder(BorderFactory.createRaisedBevelBorder());
+        applyTheme(darkMode);
     }
 
     /**
@@ -38,10 +80,10 @@ public class EditPanel extends javax.swing.JPanel {
         jTextFieldPath = new javax.swing.JTextField();
         jButtonBrowse = new javax.swing.JButton();
         jLabelSpeed = new javax.swing.JLabel();
-        jTextFieldSpeed = new javax.swing.JTextField();
         jLabelYtDlp = new javax.swing.JLabel();
         jTextFieldYtDlp = new javax.swing.JTextField();
         jButtonBack = new javax.swing.JButton();
+        jSpinnerTime = new javax.swing.JSpinner();
 
         setLayout(null);
 
@@ -51,11 +93,11 @@ public class EditPanel extends javax.swing.JPanel {
 
         jLabelPath.setText("Path");
         add(jLabelPath);
-        jLabelPath.setBounds(40, 60, 320, 40);
+        jLabelPath.setBounds(200, 60, 320, 40);
 
         jTextFieldPath.setText("C:\\Users\\nuria\\Downloads");
         add(jTextFieldPath);
-        jTextFieldPath.setBounds(40, 100, 250, 40);
+        jTextFieldPath.setBounds(200, 100, 250, 40);
 
         jButtonBrowse.setText("Browse");
         jButtonBrowse.addActionListener(new java.awt.event.ActionListener() {
@@ -64,28 +106,19 @@ public class EditPanel extends javax.swing.JPanel {
             }
         });
         add(jButtonBrowse);
-        jButtonBrowse.setBounds(100, 150, 90, 20);
+        jButtonBrowse.setBounds(460, 100, 90, 30);
 
         jLabelSpeed.setText("Speed:");
         add(jLabelSpeed);
-        jLabelSpeed.setBounds(30, 180, 250, 30);
-
-        jTextFieldSpeed.setText("5");
-        jTextFieldSpeed.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldSpeedActionPerformed(evt);
-            }
-        });
-        add(jTextFieldSpeed);
-        jTextFieldSpeed.setBounds(30, 220, 280, 50);
+        jLabelSpeed.setBounds(270, 270, 60, 30);
 
         jLabelYtDlp.setText("Location of yt-dlp binary:");
         add(jLabelYtDlp);
-        jLabelYtDlp.setBounds(400, 160, 210, 20);
+        jLabelYtDlp.setBounds(200, 160, 210, 20);
 
         jTextFieldYtDlp.setText("C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe");
         add(jTextFieldYtDlp);
-        jTextFieldYtDlp.setBounds(400, 190, 340, 40);
+        jTextFieldYtDlp.setBounds(200, 190, 340, 40);
 
         jButtonBack.setText("Return");
         jButtonBack.addActionListener(new java.awt.event.ActionListener() {
@@ -94,8 +127,86 @@ public class EditPanel extends javax.swing.JPanel {
             }
         });
         add(jButtonBack);
-        jButtonBack.setBounds(320, 340, 110, 40);
+        jButtonBack.setBounds(320, 370, 110, 40);
+
+        jSpinnerTime.setModel(new javax.swing.SpinnerNumberModel(5, null, null, 1));
+        add(jSpinnerTime);
+        jSpinnerTime.setBounds(320, 270, 70, 30);
     }// </editor-fold>//GEN-END:initComponents
+
+    public void applyTheme(boolean darkMode) {
+
+        Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
+        Color panel = darkMode ? AppColor.DARK_PANEL : AppColor.LIGHT_PANEL;
+        Color btn = darkMode ? AppColor.DARK_BUTTON : AppColor.LIGHT_BUTTON;
+        Color text = darkMode ? AppColor.DARK_TEXT : AppColor.LIGHT_TEXT;
+
+        // Fondo del panel
+        setBackground(bg);
+
+        // Labels
+        jLabelTitle.setForeground(text);
+        jLabelPath.setForeground(text);
+        jLabelSpeed.setForeground(text);
+        jLabelYtDlp.setForeground(text);
+
+        // TextFields
+        jTextFieldPath.setBackground(panel);
+        jTextFieldPath.setForeground(text);
+
+        jTextFieldYtDlp.setBackground(panel);
+        jTextFieldYtDlp.setForeground(text);
+
+        // Botones
+        jButtonBrowse.setBackground(btn);
+        jButtonBrowse.setForeground(text);
+
+        jButtonBack.setBackground(btn);
+        jButtonBack.setForeground(text);
+
+        repaint();
+    }
+
+    private void enableAutoResize() {
+
+        // Guardar bounds originales
+        for (Component c : getComponents()) {
+            baseBounds.put(c, c.getBounds());
+        }
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+
+                double scaleX = getWidth() / (double) baseSize.width;
+                double scaleY = getHeight() / (double) baseSize.height;
+
+                for (Map.Entry<Component, Rectangle> entry : baseBounds.entrySet()) {
+
+                    Component c = entry.getKey();
+                    Rectangle r = entry.getValue();
+
+                    int newX = (int) (r.x * scaleX);
+                    int newY = (int) (r.y * scaleY);
+                    int newW = (int) (r.width * scaleX);
+                    int newH = (int) (r.height * scaleY);
+
+                    c.setBounds(newX, newY, newW, newH);
+                }
+
+                revalidate();
+                repaint();
+            }
+        });
+
+        // 🔁 Recalcular bounds reales una vez pintado
+        SwingUtilities.invokeLater(() -> {
+            baseBounds.clear();
+            for (Component c : getComponents()) {
+                baseBounds.put(c, c.getBounds());
+            }
+        });
+    }
 
     private void jButtonBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseActionPerformed
         JFileChooser chooser = new JFileChooser();
@@ -114,10 +225,6 @@ public class EditPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonBackActionPerformed
 
-    private void jTextFieldSpeedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldSpeedActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldSpeedActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBack;
@@ -126,8 +233,8 @@ public class EditPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabelSpeed;
     private javax.swing.JLabel jLabelTitle;
     private javax.swing.JLabel jLabelYtDlp;
+    private javax.swing.JSpinner jSpinnerTime;
     private javax.swing.JTextField jTextFieldPath;
-    private javax.swing.JTextField jTextFieldSpeed;
     private javax.swing.JTextField jTextFieldYtDlp;
     // End of variables declaration//GEN-END:variables
 }

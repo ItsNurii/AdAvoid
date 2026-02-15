@@ -4,6 +4,8 @@
  */
 package adrover.antiads.dialogs;
 
+import adrover.antiads.use.AppColor;
+
 /**
  *
  * @author nuria
@@ -15,11 +17,13 @@ public class AboutDialog extends javax.swing.JDialog {
     /**
      * Creates new form AboutDialog
      */
-    public AboutDialog(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public AboutDialog(java.awt.Frame parent, boolean modal, boolean darkMode) {
+        super(parent, true);
         initComponents();
         this.setSize(400, 300);
         setLocationRelativeTo(parent);
+
+        applyTheme(darkMode);
     }
 
     /**
@@ -54,7 +58,7 @@ public class AboutDialog extends javax.swing.JDialog {
 
         jLabelResources.setText("Resources: teatcher, classmates, ChatGPT, yt-dlp");
         getContentPane().add(jLabelResources);
-        jLabelResources.setBounds(60, 130, 320, 20);
+        jLabelResources.setBounds(60, 140, 320, 20);
 
         jButtonClose.setText("Close");
         jButtonClose.addActionListener(new java.awt.event.ActionListener() {
@@ -63,7 +67,7 @@ public class AboutDialog extends javax.swing.JDialog {
             }
         });
         getContentPane().add(jButtonClose);
-        jButtonClose.setBounds(150, 170, 72, 23);
+        jButtonClose.setBounds(150, 190, 72, 23);
 
         jLabelTitle.setText("AdVoid");
         getContentPane().add(jLabelTitle);
@@ -71,11 +75,42 @@ public class AboutDialog extends javax.swing.JDialog {
 
         jLabelLogo.setText("Logo: LogoDesigner");
         getContentPane().add(jLabelLogo);
-        jLabelLogo.setBounds(60, 110, 140, 20);
+        jLabelLogo.setBounds(60, 110, 150, 30);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void applyTheme(boolean darkMode) {
+
+        java.awt.Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
+        java.awt.Color btn = darkMode ? AppColor.DARK_BUTTON : AppColor.LIGHT_BUTTON;
+        java.awt.Color text = darkMode ? AppColor.DARK_TEXT : AppColor.LIGHT_TEXT;
+
+        // Fondo del diálogo
+        getContentPane().setBackground(bg);
+
+        // Labels
+        jLabelTitle.setForeground(text);
+        jLabelName.setForeground(text);
+        jLabelCurse.setForeground(text);
+        jLabelLogo.setForeground(text);
+        jLabelResources.setForeground(text);
+
+        // Fonts mejoradas
+        jLabelTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 28));
+        jLabelName.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+        jLabelCurse.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
+        jLabelLogo.setFont(new java.awt.Font("Segoe UI", java.awt.Font.ITALIC, 16));
+        jLabelResources.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
+
+        // Botón cerrar
+        jButtonClose.setBackground(btn);
+        jButtonClose.setForeground(text);
+        jButtonClose.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+        jButtonClose.setFocusPainted(false);
+
+        repaint();
+    }
     private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButtonCloseActionPerformed
@@ -105,7 +140,7 @@ public class AboutDialog extends javax.swing.JDialog {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                AboutDialog dialog = new AboutDialog(new javax.swing.JFrame(), true);
+                AboutDialog dialog = new AboutDialog(new javax.swing.JFrame(), true, false);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

@@ -5,19 +5,25 @@
 package adrover.antiads.panels;
 
 import adrover.antiads.Main;
+import adrover.antiads.use.AppColor;
 import adrover.mediacomponent.ApiClient.Media;
 import adrover.mediacomponent.MediaComponent;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
-import javax.swing.DefaultListModel;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
@@ -30,65 +36,114 @@ public class DetailsPanel extends javax.swing.JPanel {
     private MediaComponent mediaComponent;
     private File downloadFolder;
 
+    private final Dimension baseSize = new Dimension(800, 600);
+    private final Map<Component, Rectangle> baseBounds = new HashMap<>();
+
     private final List<MediaItem> mediaItems = new ArrayList<>();
     private final MediaTableModel tableModel = new MediaTableModel();
 
-    public DetailsPanel(MediaComponent mediaComponent) {
+    public DetailsPanel(MediaComponent mediaComponent, boolean darkMode) {
         this.mediaComponent = mediaComponent;
         this.setSize(800, 600);
         initComponents();
-
+        enableAutoResize();
         jTable.setModel(tableModel);
 
         downloadFolder = new File(System.getProperty("user.home") + "\\Downloads");
 
-        // 🔄 Refresh action
-        jButtonRefresh.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadAllMedia();
+        jTable.setModel(tableModel);
+        jTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        jTable.setAutoCreateRowSorter(true);
+
+        // 🔄 Refresh
+        jButtonRefresh.addActionListener(e -> loadAllMedia());
+
+        // 🗑️ Delete
+        jButtonDelete.addActionListener(e -> deleteSelected());
+
+        // ⬅️ Return
+        jButtonReturn.addActionListener(e -> {
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(DetailsPanel.this);
+            if (topFrame instanceof Main mainFrame) {
+                mainFrame.setContentPane(mainFrame.mainPanel);
+                mainFrame.revalidate();
+                mainFrame.repaint();
             }
         });
 
-        // 🗑️ Delete selected
-        jButtonDelete.addActionListener(new ActionListener() {
+        // 🎚️ Filter
+        jComboBox1.addActionListener(e -> {
+            String selected = (String) jComboBox1.getSelectedItem();
+            filterTable(selected);
+        });
+
+        // ⬆️ Upload
+        jButtonUpload.addActionListener(e -> uploadSelected());
+
+        // ⬇️ Download
+        jButtonDownload.addActionListener(e -> downloadSelected());
+
+        // UX: enable/disable buttons
+        jTable.getSelectionModel().addListSelectionListener(e -> updateButtons());
+
+        updateButtons();
+
+        applyTheme(darkMode);
+
+    }
+
+    public void applyTheme(boolean darkMode) {
+        Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
+        Color panel = darkMode ? AppColor.DARK_PANEL : AppColor.LIGHT_PANEL;
+        Color text = darkMode ? AppColor.DARK_TEXT : AppColor.LIGHT_TEXT;
+
+        // Fondo del panel
+        setBackground(bg);
+
+        // Tabla y scroll
+        jTable.setBackground(panel);
+        jTable.setForeground(text);
+        jTable.setGridColor(text);
+        
+        jScrollPane3.getViewport().setBackground(panel);
+
+
+        // Combobox
+        jComboBox1.setBackground(panel);
+        jComboBox1.setForeground(text);
+
+        repaint();
+    }
+
+    private void enableAutoResize() {
+
+        // Guardar bounds originales de todos los componentes
+        for (Component c : getComponents()) {
+            baseBounds.put(c, c.getBounds());
+        }
+
+        addComponentListener(new ComponentAdapter() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                int idx = jList1.getSelectedIndex();
-                if (idx != -1) {
-                    MediaItem item = mediaItems.get(idx);
-                    File f = new File(downloadFolder, item.getName());
-                    if (f.exists() && f.delete()) {
-                        JOptionPane.showMessageDialog(DetailsPanel.this, "File deleted: " + f.getName());
-                        loadAllMedia();
-                    } else {
-                        JOptionPane.showMessageDialog(DetailsPanel.this, "Cannot delete file.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(DetailsPanel.this, "Select a file to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            public void componentResized(ComponentEvent e) {
+
+                double scaleX = getWidth() / (double) baseSize.width;
+                double scaleY = getHeight() / (double) baseSize.height;
+
+                for (Map.Entry<Component, Rectangle> entry : baseBounds.entrySet()) {
+
+                    Component c = entry.getKey();
+                    Rectangle r = entry.getValue();
+
+                    int newX = (int) (r.x * scaleX);
+                    int newY = (int) (r.y * scaleY);
+                    int newW = (int) (r.width * scaleX);
+                    int newH = (int) (r.height * scaleY);
+
+                    c.setBounds(newX, newY, newW, newH);
                 }
-            }
-        });
 
-        // ⬅️ Return to Main JFrame
-        jButtonReturn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(DetailsPanel.this);
-                if (topFrame instanceof Main mainFrame) {
-                    mainFrame.setContentPane(mainFrame.mainPanel);
-                    mainFrame.revalidate();
-                    mainFrame.repaint();
-                }
-            }
-        });
-
-        // 🎚️ ComboBox filter
-        jComboBox1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selected = (String) jComboBox1.getSelectedItem();
-                filterTable(selected);
+                revalidate();
+                repaint();
             }
         });
     }
@@ -100,6 +155,7 @@ public class DetailsPanel extends javax.swing.JPanel {
                     "Error 401", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
         mediaItems.clear();
 
         // 1️⃣ Local
@@ -119,7 +175,7 @@ public class DetailsPanel extends javax.swing.JPanel {
             }
         }
 
-        // 2️⃣ Network (USANDO MEDIA COMPONENT CORRECTO)
+        // 2️⃣ Network
         try {
             List<Media> apiMedia = mediaComponent.getAllMedia();
 
@@ -156,35 +212,57 @@ public class DetailsPanel extends javax.swing.JPanel {
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Update UI
-        DefaultListModel<String> model = new DefaultListModel<>();
-        for (MediaItem m : mediaItems) {
-            model.addElement(m.getName());
-        }
-        jList1.setModel(model);
-
         filterTable((String) jComboBox1.getSelectedItem());
     }
 
     private void filterTable(String filter) {
         List<MediaItem> filtered = mediaItems.stream()
-                .filter(new Predicate<MediaItem>() {
-                    @Override
-                    public boolean test(MediaItem item) {
-                        return "All".equalsIgnoreCase(filter) || item.getType().equalsIgnoreCase(filter);
-                    }
-                })
+                .filter(item
+                        -> "All".equalsIgnoreCase(filter)
+                || item.getType().equalsIgnoreCase(filter))
                 .toList();
+
         tableModel.setItems(filtered);
     }
 
-    private void uploadSelected() {
-        int idx = jList1.getSelectedIndex();
-        if (idx == -1) {
+    private MediaItem getSelectedItemFromTable() {
+        int row = jTable.getSelectedRow();
+        if (row == -1) {
+            return null;
+        }
+
+        int modelRow = jTable.convertRowIndexToModel(row);
+        return tableModel.getItemAt(modelRow);
+    }
+
+    private void deleteSelected() {
+        MediaItem item = getSelectedItemFromTable();
+
+        if (item == null) {
+            JOptionPane.showMessageDialog(this,
+                    "Select a file to delete.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        MediaItem item = mediaItems.get(idx);
+        File f = new File(downloadFolder, item.getName());
+        if (f.exists() && f.delete()) {
+            JOptionPane.showMessageDialog(this, "File deleted: " + f.getName());
+            loadAllMedia();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Cannot delete file.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void uploadSelected() {
+        MediaItem item = getSelectedItemFromTable();
+        if (item == null) {
+            return;
+        }
 
         if (item.getState() == MediaItem.State.NETWORK_ONLY) {
             return;
@@ -205,12 +283,11 @@ public class DetailsPanel extends javax.swing.JPanel {
     }
 
     private void downloadSelected() {
-        int idx = jList1.getSelectedIndex();
-        if (idx == -1) {
+        MediaItem item = getSelectedItemFromTable();
+        if (item == null) {
             return;
         }
 
-        MediaItem item = mediaItems.get(idx);
         if (item.getState() == MediaItem.State.LOCAL_ONLY) {
             return;
         }
@@ -218,15 +295,27 @@ public class DetailsPanel extends javax.swing.JPanel {
         try {
             File dest = new File(downloadFolder, item.getName());
             mediaComponent.download(item.getId(), dest);
+
             JOptionPane.showMessageDialog(this, "Downloaded: " + item.getName());
             loadAllMedia();
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Download failed: " + ex.getMessage(),
+            JOptionPane.showMessageDialog(this,
+                    "Download failed: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // =======================================
+    private void updateButtons() {
+        MediaItem item = getSelectedItemFromTable();
+        boolean hasSelection = item != null;
+
+        jButtonDelete.setEnabled(hasSelection && item.getState() != MediaItem.State.NETWORK_ONLY);
+        jButtonUpload.setEnabled(hasSelection && item.getState() != MediaItem.State.NETWORK_ONLY);
+        jButtonDownload.setEnabled(hasSelection && item.getState() != MediaItem.State.LOCAL_ONLY);
+    }
+
+    // ================= Table Model =================
     private static class MediaTableModel extends AbstractTableModel {
 
         private final String[] columns = {"Name", "Size (MB)", "Type", "Date Modified", "State"};
@@ -236,6 +325,10 @@ public class DetailsPanel extends javax.swing.JPanel {
         public void setItems(List<MediaItem> items) {
             this.items = items;
             fireTableDataChanged();
+        }
+
+        public MediaItem getItemAt(int row) {
+            return items.get(row);
         }
 
         @Override
@@ -256,27 +349,24 @@ public class DetailsPanel extends javax.swing.JPanel {
         @Override
         public Object getValueAt(int row, int column) {
             MediaItem item = items.get(row);
-            switch (column) {
-                case 0:
-                    return item.getName();
-                case 1:
-                    return String.format("%.2f", item.getSize() / (1024.0 * 1024.0));
-                case 2:
-                    return item.getType();
-                case 3:
-                    return sdf.format(item.getModified());
-                case 4:
-                    return item.getState().name();
-                default:
-                    return null;
-            }
-        }
-
-        public MediaItem getItemAt(int row) {
-            return items.get(row);
+            return switch (column) {
+                case 0 ->
+                    item.getName();
+                case 1 ->
+                    String.format("%.2f", item.getSize() / (1024.0 * 1024.0));
+                case 2 ->
+                    item.getType();
+                case 3 ->
+                    sdf.format(item.getModified());
+                case 4 ->
+                    item.getState().name();
+                default ->
+                    null;
+            };
         }
     }
 
+    // ================= Model =================
     public static class MediaItem {
 
         public enum State {
@@ -337,8 +427,6 @@ public class DetailsPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList<>();
         jComboBox1 = new javax.swing.JComboBox<>();
         jButtonDelete = new javax.swing.JButton();
         jButtonRefresh = new javax.swing.JButton();
@@ -350,11 +438,6 @@ public class DetailsPanel extends javax.swing.JPanel {
 
         setLayout(null);
 
-        jScrollPane2.setViewportView(jList1);
-
-        add(jScrollPane2);
-        jScrollPane2.setBounds(30, 20, 590, 190);
-
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All", "Video", "Audio" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -362,7 +445,7 @@ public class DetailsPanel extends javax.swing.JPanel {
             }
         });
         add(jComboBox1);
-        jComboBox1.setBounds(660, 280, 80, 30);
+        jComboBox1.setBounds(660, 340, 80, 30);
 
         jButtonDelete.setText("Delete");
         jButtonDelete.addActionListener(new java.awt.event.ActionListener() {
@@ -371,15 +454,15 @@ public class DetailsPanel extends javax.swing.JPanel {
             }
         });
         add(jButtonDelete);
-        jButtonDelete.setBounds(660, 80, 72, 23);
+        jButtonDelete.setBounds(660, 120, 80, 23);
 
         jButtonRefresh.setText("Refresh");
         add(jButtonRefresh);
-        jButtonRefresh.setBounds(660, 40, 72, 23);
+        jButtonRefresh.setBounds(660, 80, 80, 23);
 
         jButtonReturn.setText("Return");
         add(jButtonReturn);
-        jButtonReturn.setBounds(330, 440, 72, 23);
+        jButtonReturn.setBounds(330, 550, 72, 23);
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -395,7 +478,7 @@ public class DetailsPanel extends javax.swing.JPanel {
         jScrollPane3.setViewportView(jTable);
 
         add(jScrollPane3);
-        jScrollPane3.setBounds(30, 240, 600, 190);
+        jScrollPane3.setBounds(30, 30, 600, 500);
 
         jButtonUpload.setText("Upload");
         jButtonUpload.addActionListener(new java.awt.event.ActionListener() {
@@ -404,7 +487,7 @@ public class DetailsPanel extends javax.swing.JPanel {
             }
         });
         add(jButtonUpload);
-        jButtonUpload.setBounds(650, 180, 100, 23);
+        jButtonUpload.setBounds(650, 200, 100, 23);
 
         jButtonDownload.setText("Download");
         jButtonDownload.addActionListener(new java.awt.event.ActionListener() {
@@ -413,7 +496,7 @@ public class DetailsPanel extends javax.swing.JPanel {
             }
         });
         add(jButtonDownload);
-        jButtonDownload.setBounds(650, 210, 100, 23);
+        jButtonDownload.setBounds(650, 240, 100, 23);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteActionPerformed
@@ -440,8 +523,6 @@ public class DetailsPanel extends javax.swing.JPanel {
     private javax.swing.JButton jButtonReturn;
     private javax.swing.JButton jButtonUpload;
     private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JList<String> jList1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable jTable;
     // End of variables declaration//GEN-END:variables

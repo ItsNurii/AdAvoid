@@ -8,10 +8,22 @@ import adrover.antiads.panels.EditPanel;
 import adrover.antiads.panels.DetailsPanel;
 import adrover.antiads.dialogs.AboutDialog;
 import adrover.antiads.login.LoginPanel;
+import adrover.antiads.use.AppColor;
 import adrover.mediacomponent.ApiClient.Media;
 import adrover.mediacomponent.MediaEvent;
 import adrover.mediacomponent.MediaListener;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -27,17 +39,27 @@ public final class Main extends javax.swing.JFrame {
     private java.io.File lastDownloadedFile;
     private DetailsPanel detailsPanel;
     private LoginPanel loginPanel;
+    private final Dimension baseSize = new Dimension(800, 600);
+    private final Map<Component, Rectangle> baseBounds = new HashMap<>();
+    private boolean darkMode = false;
 
     public Main() {
         initComponents();
         this.setSize(800, 600);
         setLocationRelativeTo(this);
-
+        enableAutoResize();
+        this.setMinimumSize(new Dimension(800, 600));
+        setTitle("AdVoid");
         mainPanel = (JPanel) getContentPane();
 
+        
+        styleComponents();
+        applyTheme(darkMode);
+        jCheckBoxMenuItemDark.setSelected(darkMode);
+
         // Inicializar paneles
-        detailsPanel = new DetailsPanel(mediaComponent1);
-        editPanel = new EditPanel();
+        detailsPanel = new DetailsPanel(mediaComponent1, darkMode);
+        editPanel = new EditPanel(darkMode);
         loginPanel = new LoginPanel(this, mediaComponent1);
 
         mediaComponent1.addMediaListener(new MediaListener() {
@@ -179,7 +201,7 @@ public final class Main extends javax.swing.JFrame {
         jButtonDetails.setBounds(590, 170, 110, 23);
 
         mediaComponent1.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
-        mediaComponent1.setApiUrl("https://dimedianetapi9.azurewebsites.net");
+        mediaComponent1.setApiUrl("https://difreenet9.azurewebsites.net");
         mediaComponent1.setToken("");
         getContentPane().add(mediaComponent1);
         mediaComponent1.setBounds(30, 50, 40, 40);
@@ -237,22 +259,135 @@ public final class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void styleComponents() {
+        // ==== Fonts modernas ====
+        Font titleFont = new Font("Segoe UI", Font.BOLD, 22);
+        Font labelFont = new Font("Segoe UI", Font.PLAIN, 16);
+        Font buttonFont = new Font("Segoe UI", Font.BOLD, 16);
+
+        // ==== Labels ====
+        jLabelTitle.setFont(titleFont);
+        jLabelTitle.setForeground(darkMode ? Color.WHITE : Color.DARK_GRAY);
+
+        jLabelLogo.setOpaque(false);
+
+        // ==== Buttons ====
+        JButton[] buttons = {jButtonSearch, jButtonReproduce, jButtonDetails};
+        for (JButton b : buttons) {
+            b.setFont(buttonFont);
+            b.setForeground(Color.WHITE);
+            b.setBackground(new Color(60, 150, 250));
+            b.setFocusPainted(false);
+            b.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+            b.setOpaque(true);
+        }
+
+        // ==== TextFields y TextArea ====
+        jTextFieldLink.setFont(labelFont);
+        jTextAreaDownload.setFont(labelFont);
+        jTextAreaDownload.setLineWrap(true);
+        jTextAreaDownload.setWrapStyleWord(true);
+    }
+
+    private void applyTheme(boolean darkMode) {
+
+        java.awt.Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
+        java.awt.Color panel = darkMode ? AppColor.DARK_PANEL : AppColor.LIGHT_PANEL;
+        java.awt.Color btn = darkMode ? AppColor.DARK_BUTTON : AppColor.LIGHT_BUTTON;
+        java.awt.Color text = darkMode ? AppColor.DARK_TEXT : AppColor.LIGHT_TEXT;
+
+        // Fondo principal
+        getContentPane().setBackground(bg);
+
+        // Labels
+        jLabelTitle.setForeground(text);
+
+        // TextField
+        jTextFieldLink.setBackground(panel);
+        jTextFieldLink.setForeground(text);
+
+        // TextArea + Scroll
+        jTextAreaDownload.setBackground(panel);
+        jTextAreaDownload.setForeground(text);
+        jScrollPane1.getViewport().setBackground(panel);
+
+        // Progress bar
+        jProgressBar.setBackground(panel);
+        jProgressBar.setForeground(btn);
+
+        // Botones
+        jButtonSearch.setBackground(btn);
+        jButtonSearch.setForeground(text);
+
+        jButtonReproduce.setBackground(btn);
+        jButtonReproduce.setForeground(text);
+
+        jButtonDetails.setBackground(btn);
+        jButtonDetails.setForeground(text);
+
+        // Radio buttons
+        jRadioButtonMP3.setBackground(bg);
+        jRadioButtonMP3.setForeground(text);
+
+        jRadioButtonMP4.setBackground(bg);
+        jRadioButtonMP4.setForeground(text);
+
+        // Progress bar
+        jProgressBar.setMinimum(0);
+        jProgressBar.setMaximum(100);
+        jProgressBar.setStringPainted(true);
+
+        repaint();
+    }
+
+    private void enableAutoResize() {
+
+        // Guardar bounds originales de todos los componentes
+        for (Component c : getContentPane().getComponents()) {
+            baseBounds.put(c, c.getBounds());
+        }
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+
+                double scaleX = getWidth() / (double) baseSize.width;
+                double scaleY = getHeight() / (double) baseSize.height;
+
+                for (Map.Entry<Component, Rectangle> entry : baseBounds.entrySet()) {
+
+                    Component c = entry.getKey();
+                    Rectangle r = entry.getValue();
+
+                    int newX = (int) (r.x * scaleX);
+                    int newY = (int) (r.y * scaleY);
+                    int newW = (int) (r.width * scaleX);
+                    int newH = (int) (r.height * scaleY);
+
+                    c.setBounds(newX, newY, newW, newH);
+                }
+
+                getContentPane().revalidate();
+                getContentPane().repaint();
+            }
+        });
+    }
+
     public void startWithToken(String token) {
 
         if (token == null || token.isBlank()) {
             showLoginPanel();
             return;
         }
-        
+
         detailsPanel.loadAllMedia();
-        // Mostrar panel principal
         showMainPanel();
     }
 
     public void showDetailsPanel() {
         if (mediaComponent1.getToken() == null || mediaComponent1.getToken().isBlank()) {
             JOptionPane.showMessageDialog(this,
-                    "Debes iniciar sesión primero.",
+                    "You must login first",
                     "Error 401", JOptionPane.ERROR_MESSAGE);
             showLoginPanel();
             return;
@@ -260,31 +395,35 @@ public final class Main extends javax.swing.JFrame {
 
         detailsPanel.loadAllMedia(); // refresca la lista con media actual
         setContentPane(detailsPanel);
+        detailsPanel.applyTheme(darkMode);
         revalidate();
         repaint();
     }
 
     public void showEditPanel() {
         setContentPane(editPanel);
+        editPanel.applyTheme(darkMode);
         revalidate();
         repaint();
     }
 
     private void showLoginPanel() {
         setContentPane(loginPanel);
+        loginPanel.applyTheme(darkMode);
         revalidate();
         repaint();
     }
 
     public void showMainPanel() {
         setContentPane(mainPanel);
+        applyTheme(darkMode);
         revalidate();
         repaint();
     }
 
 
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
-        AboutDialog about = new AboutDialog(this, true);
+        AboutDialog about = new AboutDialog(this, true, jCheckBoxMenuItemDark.isSelected());
         about.setVisible(true);
     }//GEN-LAST:event_jMenuItemAboutActionPerformed
 
@@ -330,6 +469,16 @@ public final class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextFieldLinkActionPerformed
 
     private void jCheckBoxMenuItemDarkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItemDarkActionPerformed
+        darkMode = jCheckBoxMenuItemDark.isSelected();
+
+        // Main
+        applyTheme(darkMode);
+
+        // Paneles
+        loginPanel.applyTheme(darkMode);
+        detailsPanel.applyTheme(darkMode);
+
+        repaint();
 
     }//GEN-LAST:event_jCheckBoxMenuItemDarkActionPerformed
 
@@ -358,7 +507,12 @@ public final class Main extends javax.swing.JFrame {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        java.awt.EventQueue.invokeLater(() -> new Main().setVisible(true));
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new Main().setVisible(true);
+            }
+        });
     }//GEN-LAST:event_jButtonReproduceActionPerformed
 
     private void jButtonDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDetailsActionPerformed
@@ -427,10 +581,13 @@ public final class Main extends javax.swing.JFrame {
                 process.waitFor();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                javax.swing.SwingUtilities.invokeLater(()
-                        -> JOptionPane.showMessageDialog(Main.this, "Error during download:\n" + ex.getMessage(),
-                                "Error", JOptionPane.ERROR_MESSAGE)
-                );
+                javax.swing.SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        JOptionPane.showMessageDialog(Main.this, "Error during download:\n" + ex.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
             }
             return null;
         }
