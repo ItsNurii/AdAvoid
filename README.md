@@ -1,151 +1,179 @@
-# 🎬 AdVoid
+🎬 AdVoid
 
-A desktop application built in **Java Swing** that provides an intuitive interface for downloading and managing video or audio content using the **yt-dlp** and **FFmpeg** tools.
+AdVoid is a Java Swing desktop application that provides a modern and intuitive interface for downloading, managing, and processing multimedia content without ads, using yt-dlp and FFmpeg as its core engines.
 
----
+The application combines media downloading, file management, user authentication, and UI customization (light/dark mode) into a single, cohesive desktop experience.
 
-## 📘 About the Project
+📘 About the Project
 
-**AdVoid** was developed as part of a Java desktop application project for the **[Your Course Name / Subject]** at **[Your Institution]**.
+AdVoid was developed as part of a Java Desktop Application project for the Development of Multiplatform Applications (DAM) program.
 
-The app allows users to:
-- Download media from online platforms via `yt-dlp`.
-- Process or convert downloaded media using `ffmpeg`.
-- Manage and edit download preferences in a clean and modern GUI.
-- Track download progress visually with a dynamic progress bar.
-- Access application information in a styled “About” dialog.
+The main goal of the project is to demonstrate:
 
----
+Advanced use of Java Swing
 
-## 🖥️ Features
+Background task management
 
-✅ Simple and user-friendly interface built with **Swing**.  
-✅ Supports background download execution using **yt-dlp**.  
-✅ Automatic conversion and post-processing with **FFmpeg**.  
-✅ Real-time **progress tracking** with a light purple progress bar.  
-✅ Multiple panels for editing, configuration, and about information.  
-✅ Cross-platform (Windows, macOS, Linux).  
+File system interaction
 
----
+UI theming (light / dark mode)
 
-## 🧩 Technologies Used
+Modular panel-based application design
 
-| Tool / Library | Purpose |
-|-----------------|----------|
-| **Java (Swing)** | GUI framework |
-| **yt-dlp** | Video and audio downloader |
-| **FFmpeg** | Media processing and conversion |
-| **Images / Logo** | Custom app branding |
-| **Maven** | Build and dependency management |
+✨ Core Features
+🔐 Login System
 
----
+Email & password authentication via API
 
-## ⚙️ Installation and Setup
+Remember Me option for persistent login
 
-1. **Clone this repository**:
-   ```bash
-   git clone https://github.com/yourusername/AdVoid.git
-   cd AdVoid
-Make sure yt-dlp and ffmpeg are installed on your system and accessible from the terminal:
+Auto-login using stored token
 
-bash
-Copiar código
+Secure logout with credential cleanup
+
+Dynamic panel switching (Login ↔ Main App)
+
+⬇️ Media Downloading
+
+Download video or audio from supported platforms using yt-dlp
+
+Automatic post-processing and conversion with FFmpeg
+
+Runs downloads in the background to keep the UI responsive
+
+Real-time progress tracking with a dynamic progress bar
+
+🎨 User Interface
+
+Built entirely with Java Swing
+
+Clean, modern, and responsive layout
+
+Light mode (default) and Dark mode
+
+Light mode: light blue theme
+
+Dark mode: light gray theme
+
+Styled buttons, labels, and tables
+
+Custom icons in the Login screen (email & password icons)
+
+📊 Media Management – Details Panel
+
+AdVoid includes a Details Panel that turns the app into a small media manager.
+
+🔍 Functionalities
+
+Automatic scan of the download folder
+
+Supported formats:
+
+.mp3
+
+.mp4
+
+.mkv
+
+.webm
+
+File visualization using:
+
+JList for quick browsing
+
+JTable with a custom AbstractTableModel
+
+Displayed file information:
+
+File name
+
+Size
+
+Last modified date
+
+Format filtering via JComboBox
+
+Refresh button to rescan the folder
+
+Delete selected files directly from the UI
+
+Return button to navigate back to the main panel
+
+🧩 Technologies Used
+Tool / Library	Purpose
+Java (Swing)	GUI framework
+yt-dlp	Video and audio downloader
+FFmpeg	Media conversion and post-processing
+SwingWorker	Background task execution
+Maven	Build and dependency management
+Custom Images	App branding and icons
+
+⚙️ Installation & Setup
+
+Clone the repository:
+
+git clone https://github.com/yourusername/AdVoid.git
+cd AdVoid
+
+
+Make sure yt-dlp and FFmpeg are installed and accessible from the system:
+
 yt-dlp --version
 ffmpeg -version
-Build and run the project (using Maven or your IDE):
 
-bash
-Copiar código
+
+Build and run the project (Maven or IDE):
+
 mvn clean compile exec:java
+
 🚀 Usage
-Launch the app (AdVoid main window).
 
-Paste a video URL in the input field.
+Launch the application.
 
-Choose your preferred format or settings in the Edit Panel.
+Log in using your email and password.
 
-Click Download to start.
+Paste a media URL into the input field.
 
-Track your progress with the purple progress bar.
+Choose format and settings from the Edit Panel.
 
-Access the About section for info on authorship and credits.
+Click Download.
 
-👨‍💻 Author
-[Your Name]
-📚 [Your Course / Year / Institution]
-📧 [Your Email if you want]
+Track progress in real time.
 
-📝 Credits and Resources
-This project makes use of the following open-source tools and resources:
+Manage downloaded files from the Details Panel.
+
+Switch between Light Mode and Dark Mode from the menu.
+
+🔒 Security & Local Storage
+
+Session tokens are stored locally in:
+
+~/.advoid/token.txt
+
+
+Credentials are saved only if Remember Me is enabled
+
+Tokens and credentials are removed on logout
+
+👩‍💻 Author
+
+Nuria
+📚 Development of Multiplatform Applications (DAM)
+🎓 Academic Java Desktop Project
+
+📝 Credits & Resources
+
+This project makes use of the following open-source tools:
 
 🎥 yt-dlp — video/audio downloader
 
-🎧 FFmpeg — multimedia framework for conversion and post-processing
+🎧 FFmpeg — multimedia framework
 
-🖼️ Custom icons and logos used under fair use or free license
+☕ Java Swing — desktop UI framework
 
-☕ Built with Java Swing and Maven
+Custom icons and images are used under fair use or free licenses.
 
 📄 License
+
 This project is released under the MIT License.
-You are free to use, modify, and distribute this software as long as proper credit is given.
-
-
-🧱 Part 2 – Media Management & Details Panel
-
-In Part 2, AdVoid evolves into a complete media management tool, adding a new Details Panel and improved GUI navigation.
-
-🔍 New Functionalities
-
-🗂 DetailsPanel Integration – A new panel where users can view and manage all downloaded media files.
-
-🎞 Automatic Media Detection – The panel scans the download folder and lists files with extensions:
-.mp3, .mp4, .mkv, and .webm.
-
-🧠 Dynamic Filtering – Users can select a format from a JComboBox to display only files of that type (or all).
-
-📋 Media Table View – Uses a JTable with a custom AbstractTableModel (MediaTableModel) to display file details such as name, size, and last modified date.
-
-🧾 File List Display – Includes a JList for quick browsing of file names.
-
-🔄 Interactive Refresh – The Refresh button updates both the list and the table with the current folder contents.
-
-🧹 Delete Option – Users can select and delete files directly from the list or table.
-
-🔙 Return Navigation – The Return button allows going back to the main application panel.
-
-🪄 Main JFrame Connection – The panel is opened by clicking the jButtonDetails button from the main window.
-
-⚙️ How It Works
-
-When the user opens the Details Panel, the application scans the download folder for supported file types.
-
-The list (JList) and table (JTable) are populated using the data found.
-
-Selecting a filter in the combo box (e.g., “MP3”) updates the list and table to show only .mp3 files.
-
-Clicking Refresh rescans the folder.
-
-Delete removes the selected file(s) from the system.
-
-Return navigates back to the main window.
-
-💾 Supported Formats
-
-.mp3 (Audio)
-
-.mp4 (Video)
-
-.mkv (Video)
-
-.webm (Video)
-
-📌 Login System – Java Swing
-
-This project implements a Login System in Java Swing with support for:
-
-✔ Email + Password authentication
-✔ “Remember Me” persistent login
-✔ Auto-login on startup
-✔ Secure logout behavior
-✔ Dynamic panel switching (Login → Main Window → Login)
+You are free to use, modify, and distribute it with proper attribution.
