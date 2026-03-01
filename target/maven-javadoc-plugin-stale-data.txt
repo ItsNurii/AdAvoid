@@ -1,0 +1,52 @@
+@options
+@packages
+-classpath
+'C:/Users/nuria/.m2/repository/tools/jackson/core/jackson-databind/3.0.0/jackson-databind-3.0.0.jar;C:/Users/nuria/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.20/jackson-annotations-2.20.jar;C:/Users/nuria/.m2/repository/tools/jackson/core/jackson-core/3.0.0/jackson-core-3.0.0.jar;C:/Users/nuria/.m2/repository/unknown/binary/MediaComponent-1.0-SNAPSHOT/SNAPSHOT/MediaComponent-1.0-SNAPSHOT-SNAPSHOT.jar'
+-encoding
+'UTF-8'
+-protected
+--release
+24
+-sourcepath
+'C:/Users/nuria/OneDrive/Documentos/NetBeansProjects/AdVoid/src/main/java;C:/Users/nuria/OneDrive/Documentos/NetBeansProjects/AdVoid/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2026. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'C:/Users/nuria/OneDrive/Documentos/NetBeansProjects/AdVoid/doc/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'AdVoid 1.0-SNAPSHOT API'
+-use
+-version
+-windowtitle
+'AdVoid 1.0-SNAPSHOT API'
+adrover.antiads.dialogs
+adrover.antiads.login
+adrover.antiads
+adrover.antiads.panels
+adrover.antiads.use
+C:\Users\nuria\.m2\repository\tools\jackson\core\jackson-databind\3.0.0\jackson-databind-3.0.0.jar = 1763749623939
+C:\Users\nuria\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.20\jackson-annotations-2.20.jar = 1763749623981
+C:\Users\nuria\.m2\repository\tools\jackson\core\jackson-core\3.0.0\jackson-core-3.0.0.jar = 1763749304780
+C:\Users\nuria\.m2\repository\unknown\binary\MediaComponent-1.0-SNAPSHOT\SNAPSHOT\MediaComponent-1.0-SNAPSHOT-SNAPSHOT.jar = 1765126274936
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\src\main\java = 1761126710587
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\target\generated-sources\annotations = 1772319252303
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\allclasses-index.html = 1772319254848
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\allpackages-index.html = 1772319254849
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\element-list = 1772319254761
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\help-doc.html = 1772319254862
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\index-all.html = 1772319254859
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\index.html = 1772319254843
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\member-search-index.js = 1772319254851
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\module-search-index.js = 1772319254850
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\overview-summary.html = 1772319254861
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\overview-tree.html = 1772319254841
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\package-search-index.js = 1772319254850
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\search.html = 1772319254860
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\serialized-form.html = 1772319254815
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\tag-search-index.js = 1772319254852
+C:\Users\nuria\OneDrive\Documentos\NetBeansProjects\AdVoid\doc\apidocs\type-search-index.js = 1772319254851

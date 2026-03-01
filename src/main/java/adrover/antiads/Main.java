@@ -28,21 +28,81 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
+ * Main window of the AdVoid application.
+ * <p>
+ * This class extends {@link javax.swing.JFrame} and acts as the main controller
+ * of the graphical user interface. It is responsible for:
+ * </p>
+ * <ul>
+ * <li>Managing navigation between panels (login, details, edit)</li>
+ * <li>Handling dark/light theme switching</li>
+ * <li>Downloading multimedia content</li>
+ * <li>Playing the last downloaded file</li>
+ * </ul>
  *
- * @author nuria
+ * <p>
+ * The interface automatically resizes its components when the window size
+ * changes.
+ * </p>
+ *
+ * @author Nuria
+ * @version 1.0
  */
 public final class Main extends javax.swing.JFrame {
 
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Main.class.getName());
+    /**
+     * Application logger used to register errors and relevant events.
+     */
+    private static final java.util.logging.Logger logger
+            = java.util.logging.Logger.getLogger(Main.class.getName());
+
+    /**
+     * Main application panel.
+     */
     public javax.swing.JPanel mainPanel;
+
+    /**
+     * Preferences editing panel.
+     */
     private EditPanel editPanel;
+
+    /**
+     * Last downloaded media file.
+     */
     private java.io.File lastDownloadedFile;
+
+    /**
+     * Media details panel.
+     */
     private DetailsPanel detailsPanel;
+
+    /**
+     * Login panel.
+     */
     private LoginPanel loginPanel;
+
+    /**
+     * Base window size used for automatic resizing.
+     */
     private final Dimension baseSize = new Dimension(800, 600);
+
+    /**
+     * Stores the original bounds of all UI components.
+     */
     private final Map<Component, Rectangle> baseBounds = new HashMap<>();
+
+    /**
+     * Indicates whether dark mode is enabled.
+     */
     private boolean darkMode = false;
 
+    /**
+     * Main window constructor.
+     * <p>
+     * Initializes UI components, applies styles, creates secondary panels and
+     * handles automatic login if a saved token exists.
+     * </p>
+     */
     public Main() {
         initComponents();
         this.setSize(800, 600);
@@ -52,7 +112,6 @@ public final class Main extends javax.swing.JFrame {
         setTitle("AdVoid");
         mainPanel = (JPanel) getContentPane();
 
-        
         styleComponents();
         applyTheme(darkMode);
         jCheckBoxMenuItemDark.setSelected(darkMode);
@@ -259,6 +318,9 @@ public final class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Applies fonts and visual styles to the main UI components.
+     */
     private void styleComponents() {
         // ==== Fonts modernas ====
         Font titleFont = new Font("Segoe UI", Font.BOLD, 22);
@@ -289,6 +351,12 @@ public final class Main extends javax.swing.JFrame {
         jTextAreaDownload.setWrapStyleWord(true);
     }
 
+    /**
+     * Applies the selected visual theme to the interface.
+     *
+     * @param darkMode {@code true} to enable dark mode, {@code false} to enable
+     * light mode
+     */
     private void applyTheme(boolean darkMode) {
 
         java.awt.Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
@@ -340,6 +408,9 @@ public final class Main extends javax.swing.JFrame {
         repaint();
     }
 
+    /**
+     * Enables automatic resizing of UI components when the window size changes.
+     */
     private void enableAutoResize() {
 
         // Guardar bounds originales de todos los componentes
@@ -373,6 +444,11 @@ public final class Main extends javax.swing.JFrame {
         });
     }
 
+    /**
+     * Starts the application using a stored authentication token.
+     *
+     * @param token saved authentication token
+     */
     public void startWithToken(String token) {
 
         if (token == null || token.isBlank()) {
@@ -384,6 +460,10 @@ public final class Main extends javax.swing.JFrame {
         showMainPanel();
     }
 
+    /**
+     * Displays the media details panel. If the user is not authenticated, the
+     * login panel is shown.
+     */
     public void showDetailsPanel() {
         if (mediaComponent1.getToken() == null || mediaComponent1.getToken().isBlank()) {
             JOptionPane.showMessageDialog(this,
@@ -400,6 +480,9 @@ public final class Main extends javax.swing.JFrame {
         repaint();
     }
 
+    /**
+     * Displays the preferences editing panel.
+     */
     public void showEditPanel() {
         setContentPane(editPanel);
         editPanel.applyTheme(darkMode);
@@ -407,6 +490,9 @@ public final class Main extends javax.swing.JFrame {
         repaint();
     }
 
+    /**
+     * Displays the login panel.
+     */
     private void showLoginPanel() {
         setContentPane(loginPanel);
         loginPanel.applyTheme(darkMode);
@@ -414,6 +500,9 @@ public final class Main extends javax.swing.JFrame {
         repaint();
     }
 
+    /**
+     * Displays the main application panel.
+     */
     public void showMainPanel() {
         setContentPane(mainPanel);
         applyTheme(darkMode);
@@ -496,23 +585,14 @@ public final class Main extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Application entry point.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String args[]) {
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new Main().setVisible(true);
-            }
-        });
+        java.awt.EventQueue.invokeLater(() -> new Main().setVisible(true));
+
     }//GEN-LAST:event_jButtonReproduceActionPerformed
 
     private void jButtonDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDetailsActionPerformed
@@ -524,22 +604,52 @@ public final class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItemLogoutActionPerformed
 
     /**
-     * @param args the command line arguments
+     * Background task responsible for downloading multimedia content using the
+     * external yt-dlp tool.
      */
     private class DownloadWorker extends javax.swing.SwingWorker<Void, String> {
 
+        /**
+         * Path to the yt-dlp executable.
+         */
         private final String ytDlpPath;
+
+        /**
+         * Video URL to download.
+         */
         private final String url;
+
+        /**
+         * Output directory for the downloaded file.
+         */
         private final String outputDir;
+
+        /**
+         * Download format (audio or video).
+         */
         private final String format;
 
-        public DownloadWorker(String ytDlpPath, String url, String outputDir, String format) {
+        /**
+         * Creates a new download worker.
+         *
+         * @param ytDlpPath path to yt-dlp executable
+         * @param url video URL
+         * @param outputDir output directory
+         * @param format selected format
+         */
+        public DownloadWorker(String ytDlpPath, String url,
+                String outputDir, String format) {
             this.ytDlpPath = ytDlpPath;
             this.url = url;
             this.outputDir = outputDir;
             this.format = format;
         }
 
+        /**
+         * Executes the download process in the background.
+         *
+         * @return {@code null} when the task finishes
+         */
         @Override
         protected Void doInBackground() {
             try {
@@ -592,6 +702,15 @@ public final class Main extends javax.swing.JFrame {
             return null;
         }
 
+        /**
+         * Processes intermediate output produced by the download task.
+         * <p>
+         * Each received line is appended to the download log text area and the
+         * progress bar is updated accordingly.
+         * </p>
+         *
+         * @param lines list of output lines generated by yt-dlp
+         */
         @Override
         protected void process(java.util.List<String> lines) {
             for (String line : lines) {
@@ -600,6 +719,14 @@ public final class Main extends javax.swing.JFrame {
             jProgressBar.setValue(getProgress());
         }
 
+        /**
+         * Executed when the background download task finishes.
+         * <p>
+         * Re-enables the download button, updates the progress bar, displays a
+         * completion message and detects the most recently downloaded media
+         * file.
+         * </p>
+         */
         @Override
         protected void done() {
             jProgressBar.setValue(100);

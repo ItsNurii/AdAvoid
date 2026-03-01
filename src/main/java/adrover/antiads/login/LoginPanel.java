@@ -16,29 +16,100 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 /**
+ * Login panel of the AdVoid application.
+ * <p>
+ * This panel provides user authentication functionality, including:
+ * </p>
+ * <ul>
+ * <li>Email and password input</li>
+ * <li>Remember-me option</li>
+ * <li>Token-based auto-login</li>
+ * <li>Light and dark theme support</li>
+ * </ul>
  *
- * @author nuria
+ * <p>
+ * Authentication tokens and credentials are stored locally in the user's home
+ * directory.
+ * </p>
+ *
+ * @author Nuria
+ * @version 1.0
  */
 public class LoginPanel extends JPanel {
 
+    /**
+     * Email input field.
+     */
     private final JTextField emailField;
+
+    /**
+     * Password input field.
+     */
     private final JPasswordField passwordField;
+
+    /**
+     * Checkbox to remember user credentials.
+     */
     private final JCheckBox rememberCheck;
+
+    /**
+     * Button used to perform login.
+     */
     private final JButton loginButton;
+
+    /**
+     * Label used to display status or error messages.
+     */
     private final JLabel statusLabel;
 
+    /**
+     * Media component used to perform API authentication.
+     */
     private final MediaComponent mediaComponent;
+
+    /**
+     * Reference to the main application window.
+     */
     private Main parent;
 
+    /**
+     * Title label of the login panel.
+     */
     private JLabel titleLabel;
+
+    /**
+     * Label for the email field (icon-based).
+     */
     private JLabel emailLabel;
+
+    /**
+     * Label for the password field (icon-based).
+     */
     private JLabel passwordLabel;
 
     // === Paths internos ===
-    private final Path TOKEN_DIR = Path.of(System.getProperty("user.home"), ".advoid");
+    /**
+     * Directory used to store authentication data.
+     */
+    private final Path TOKEN_DIR
+            = Path.of(System.getProperty("user.home"), ".advoid");
+
+    /**
+     * File used to store the authentication token.
+     */
     private final Path TOKEN_FILE = TOKEN_DIR.resolve("token.txt");
+
+    /**
+     * File used to store saved credentials.
+     */
     private final Path CREDS_FILE = TOKEN_DIR.resolve("credentials.txt");
 
+    /**
+     * Creates a new {@code LoginPanel}.
+     *
+     * @param parent reference to the main application
+     * @param mediaComponent media component responsible for API communication
+     */
     public LoginPanel(Main parent, MediaComponent mediaComponent) {
         this.parent = parent;
         this.mediaComponent = mediaComponent;
@@ -154,6 +225,12 @@ public class LoginPanel extends JPanel {
         loadSavedCredentials();
     }
 
+    /**
+     * Loads and scales an icon from the classpath.
+     *
+     * @param path resource path of the icon
+     * @return loaded icon or {@code null} if not found
+     */
     private ImageIcon loadIcon(String path) {
         java.net.URL url = getClass().getResource(path);
         if (url == null) {
@@ -166,6 +243,12 @@ public class LoginPanel extends JPanel {
         return new ImageIcon(scaled);
     }
 
+    /**
+     * Applies the selected theme to the login panel.
+     *
+     * @param darkMode {@code true} for dark theme, {@code false} for light
+     * theme
+     */
     public void applyTheme(boolean darkMode) {
         Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
         Color panel = darkMode ? AppColor.DARK_PANEL : AppColor.LIGHT_PANEL;
@@ -196,15 +279,28 @@ public class LoginPanel extends JPanel {
         repaint();
     }
 
+    /**
+     * Returns the stored authentication token, if available.
+     *
+     * @return stored token or {@code null}
+     */
     public String getSavedToken() {
         return loadToken();
     }
 
+    /**
+     * Clears all saved authentication data.
+     */
     public void clearSavedAuth() {
         deleteToken();
         deleteCredentials();
     }
 
+    /**
+     * Saves the authentication token locally.
+     *
+     * @param token authentication token
+     */
     private void saveToken(String token) {
         try {
             Files.createDirectories(TOKEN_DIR);
@@ -213,6 +309,11 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads the stored authentication token.
+     *
+     * @return token or {@code null} if not found
+     */
     private String loadToken() {
         try {
             if (!Files.exists(TOKEN_FILE)) {
@@ -224,6 +325,9 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes the stored authentication token.
+     */
     private void deleteToken() {
         try {
             Files.deleteIfExists(TOKEN_FILE);
@@ -231,6 +335,12 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Saves user credentials locally.
+     *
+     * @param email user email
+     * @param password user password
+     */
     private void saveCredentials(String email, String password) {
         try {
             Files.createDirectories(TOKEN_DIR);
@@ -239,6 +349,11 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads saved credentials from file.
+     *
+     * @return array with email and password, or {@code null}
+     */
     private String[] loadCredentialsFile() {
         try {
             if (!Files.exists(CREDS_FILE)) {
@@ -256,6 +371,9 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Deletes saved credentials.
+     */
     private void deleteCredentials() {
         try {
             Files.deleteIfExists(CREDS_FILE);
@@ -263,9 +381,12 @@ public class LoginPanel extends JPanel {
         }
     }
 
-    // ============================================================
+    // ===================================
     // 🔥 LÓGICA DE LOGIN Y AUTOLOGIN
-    // ============================================================
+    // ===================================
+    /**
+     * Automatically logs in the user if a valid token exists.
+     */
     private void autoLoginIfTokenExists() {
         String token = loadToken();
         if (token != null && !token.isEmpty()) {
@@ -274,6 +395,9 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Loads saved credentials into the input fields.
+     */
     private void loadSavedCredentials() {
         String[] creds = loadCredentialsFile();
         if (creds != null) {
@@ -283,6 +407,9 @@ public class LoginPanel extends JPanel {
         }
     }
 
+    /**
+     * Performs the login operation using the media component API.
+     */
     private void login() {
         String email = emailField.getText().trim();
         String password = new String(passwordField.getPassword());

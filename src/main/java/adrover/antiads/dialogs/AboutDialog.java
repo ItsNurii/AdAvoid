@@ -7,15 +7,32 @@ package adrover.antiads.dialogs;
 import adrover.antiads.use.AppColor;
 
 /**
+ * About dialog of the AdVoid application.
+ * <p>
+ * This dialog displays general information about the application, including the
+ * author, course, resources used and credits.
+ * </p>
+ * <p>
+ * The dialog supports light and dark themes and is displayed as a modal window.
+ * </p>
  *
- * @author nuria
+ * @author Nuria
+ * @version 1.0
  */
 public class AboutDialog extends javax.swing.JDialog {
 
+    /**
+     * Logger used to record dialog-related errors.
+     */
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AboutDialog.class.getName());
 
     /**
-     * Creates new form AboutDialog
+     * Creates a new {@code AboutDialog}.
+     *
+     * @param parent parent frame of the dialog
+     * @param modal whether the dialog is modal
+     * @param darkMode {@code true} to apply dark theme, {@code false} to apply
+     * light theme
      */
     public AboutDialog(java.awt.Frame parent, boolean modal, boolean darkMode) {
         super(parent, true);
@@ -80,6 +97,12 @@ public class AboutDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Applies the selected visual theme to the dialog.
+     *
+     * @param darkMode {@code true} to apply dark theme, {@code false} to apply
+     * light theme
+     */
     private void applyTheme(boolean darkMode) {
 
         java.awt.Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
@@ -111,12 +134,26 @@ public class AboutDialog extends javax.swing.JDialog {
 
         repaint();
     }
+
+    /**
+     * Handles the Close button action.
+     * <p>
+     * Disposes the dialog and releases its resources.
+     * </p>
+     *
+     * @param evt button action event
+     */
     private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButtonCloseActionPerformed
 
     /**
-     * @param args the command line arguments
+     * Dialog test entry point.
+     * <p>
+     * Used mainly for standalone testing of the dialog.
+     * </p>
+     *
+     * @param args command-line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

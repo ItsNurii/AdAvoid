@@ -21,16 +21,41 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 /**
+ * Preferences and configuration panel of the application.
+ * <p>
+ * This panel allows the user to configure application settings such as:
+ * </p>
+ * <ul>
+ * <li>Default download directory</li>
+ * <li>Download speed configuration</li>
+ * <li>Location of the {@code yt-dlp} executable</li>
+ * </ul>
  *
- * @author nuria
+ * <p>
+ * The panel supports light and dark themes and automatically resizes its
+ * components proportionally when the window size changes.
+ * </p>
+ *
+ * @author Nuria
+ * @version 1.0
  */
 public class EditPanel extends javax.swing.JPanel {
 
+    /**
+     * Base panel size used as reference for automatic resizing.
+     */
     private final Dimension baseSize = new Dimension(800, 600);
+
+    /**
+     * Stores original component bounds for proportional resizing.
+     */
     private final Map<Component, Rectangle> baseBounds = new HashMap<>();
 
     /**
-     * Creates new form EditPanel
+     * Creates a new {@code EditPanel}.
+     *
+     * @param darkMode {@code true} to apply dark theme, {@code false} for light
+     * theme
      */
     public EditPanel(boolean darkMode) {
         initComponents();
@@ -134,6 +159,12 @@ public class EditPanel extends javax.swing.JPanel {
         jSpinnerTime.setBounds(320, 270, 70, 30);
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Applies the selected visual theme to the panel.
+     *
+     * @param darkMode {@code true} for dark theme, {@code false} for light
+     * theme
+     */
     public void applyTheme(boolean darkMode) {
 
         Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
@@ -167,6 +198,12 @@ public class EditPanel extends javax.swing.JPanel {
         repaint();
     }
 
+    /**
+     * Enables proportional automatic resizing of all panel components.
+     * <p>
+     * Component bounds are recalculated based on the original panel size.
+     * </p>
+     */
     private void enableAutoResize() {
 
         // Guardar bounds originales
@@ -208,6 +245,11 @@ public class EditPanel extends javax.swing.JPanel {
         });
     }
 
+    /**
+     * Opens a directory chooser to select the download path.
+     *
+     * @param evt action event triggered by the browse button
+     */
     private void jButtonBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseActionPerformed
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -216,6 +258,11 @@ public class EditPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonBrowseActionPerformed
 
+    /**
+     * Returns to the main application panel.
+     *
+     * @param evt action event triggered by the return button
+     */
     private void jButtonBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBackActionPerformed
         JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
         if (topFrame instanceof Main mainFrame) {

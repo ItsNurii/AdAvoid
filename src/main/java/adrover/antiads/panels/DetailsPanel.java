@@ -28,20 +28,65 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 
 /**
+ * Panel that displays detailed information about local and network media files.
+ * <p>
+ * This panel allows the user to:
+ * </p>
+ * <ul>
+ * <li>View local and remote media files</li>
+ * <li>Filter media by type (audio/video)</li>
+ * <li>Upload local files to the server</li>
+ * <li>Download remote files</li>
+ * <li>Delete local media files</li>
+ * </ul>
  *
- * @author nuria
+ * <p>
+ * Media information is retrieved from both the local download directory and the
+ * remote API via {@link MediaComponent}.
+ * </p>
+ *
+ * @author Nuria
+ * @version 1.0
  */
 public class DetailsPanel extends javax.swing.JPanel {
 
+    /**
+     * Media component used to communicate with the backend API.
+     */
     private MediaComponent mediaComponent;
+
+    /**
+     * Local folder where downloaded media files are stored.
+     */
     private File downloadFolder;
 
+    /**
+     * Base panel size used for automatic resizing.
+     */
     private final Dimension baseSize = new Dimension(800, 600);
+
+    /**
+     * Stores original bounds of components for proportional resizing.
+     */
     private final Map<Component, Rectangle> baseBounds = new HashMap<>();
 
+    /**
+     * List of all loaded media items (local + network).
+     */
     private final List<MediaItem> mediaItems = new ArrayList<>();
+
+    /**
+     * Table model used to display media information.
+     */
     private final MediaTableModel tableModel = new MediaTableModel();
 
+    /**
+     * Creates a new {@code DetailsPanel}.
+     *
+     * @param mediaComponent media component used for API communication
+     * @param darkMode {@code true} to apply dark theme, {@code false} for light
+     * theme
+     */
     public DetailsPanel(MediaComponent mediaComponent, boolean darkMode) {
         this.mediaComponent = mediaComponent;
         this.setSize(800, 600);
@@ -92,6 +137,11 @@ public class DetailsPanel extends javax.swing.JPanel {
 
     }
 
+    /**
+     * Applies light or dark theme colors to the panel.
+     *
+     * @param darkMode {@code true} for dark mode, {@code false} for light mode
+     */
     public void applyTheme(boolean darkMode) {
         Color bg = darkMode ? AppColor.DARK_BG : AppColor.LIGHT_BG;
         Color panel = darkMode ? AppColor.DARK_PANEL : AppColor.LIGHT_PANEL;
@@ -104,9 +154,8 @@ public class DetailsPanel extends javax.swing.JPanel {
         jTable.setBackground(panel);
         jTable.setForeground(text);
         jTable.setGridColor(text);
-        
-        jScrollPane3.getViewport().setBackground(panel);
 
+        jScrollPane3.getViewport().setBackground(panel);
 
         // Combobox
         jComboBox1.setBackground(panel);
@@ -115,6 +164,10 @@ public class DetailsPanel extends javax.swing.JPanel {
         repaint();
     }
 
+    /**
+     * Enables automatic proportional resizing of all components when the panel
+     * size changes.
+     */
     private void enableAutoResize() {
 
         // Guardar bounds originales de todos los componentes
@@ -148,6 +201,10 @@ public class DetailsPanel extends javax.swing.JPanel {
         });
     }
 
+    /**
+     * Loads all available media from the local download folder and the remote
+     * API.
+     */
     public void loadAllMedia() {
         if (mediaComponent.getToken() == null || mediaComponent.getToken().isBlank()) {
             JOptionPane.showMessageDialog(this,
@@ -215,6 +272,11 @@ public class DetailsPanel extends javax.swing.JPanel {
         filterTable((String) jComboBox1.getSelectedItem());
     }
 
+    /**
+     * Filters the table based on media type.
+     *
+     * @param filter selected filter value
+     */
     private void filterTable(String filter) {
         List<MediaItem> filtered = mediaItems.stream()
                 .filter(item
@@ -225,6 +287,11 @@ public class DetailsPanel extends javax.swing.JPanel {
         tableModel.setItems(filtered);
     }
 
+    /**
+     * Returns the currently selected media item from the table.
+     *
+     * @return selected {@link MediaItem} or {@code null}
+     */
     private MediaItem getSelectedItemFromTable() {
         int row = jTable.getSelectedRow();
         if (row == -1) {
@@ -235,6 +302,9 @@ public class DetailsPanel extends javax.swing.JPanel {
         return tableModel.getItemAt(modelRow);
     }
 
+    /**
+     * Deletes the selected local media file.
+     */
     private void deleteSelected() {
         MediaItem item = getSelectedItemFromTable();
 
@@ -258,6 +328,9 @@ public class DetailsPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Uploads the selected local media file to the server.
+     */
     private void uploadSelected() {
         MediaItem item = getSelectedItemFromTable();
         if (item == null) {
@@ -282,6 +355,9 @@ public class DetailsPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Downloads the selected remote media file.
+     */
     private void downloadSelected() {
         MediaItem item = getSelectedItemFromTable();
         if (item == null) {
@@ -306,6 +382,9 @@ public class DetailsPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Updates the enabled state of action buttons based on selection.
+     */
     private void updateButtons() {
         MediaItem item = getSelectedItemFromTable();
         boolean hasSelection = item != null;
@@ -315,18 +394,32 @@ public class DetailsPanel extends javax.swing.JPanel {
         jButtonDownload.setEnabled(hasSelection && item.getState() != MediaItem.State.LOCAL_ONLY);
     }
 
-    // ================= Table Model =================
+    /* ========================= TABLE MODEL ========================= */
+    /**
+     * Table model used to display {@link MediaItem} objects.
+     */
     private static class MediaTableModel extends AbstractTableModel {
 
         private final String[] columns = {"Name", "Size (MB)", "Type", "Date Modified", "State"};
         private List<MediaItem> items = new ArrayList<>();
         private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
+        /**
+         * Sets the media items displayed in the table.
+         *
+         * @param items list of media items
+         */
         public void setItems(List<MediaItem> items) {
             this.items = items;
             fireTableDataChanged();
         }
 
+        /**
+         * Returns the media item at the specified row.
+         *
+         * @param row table row index
+         * @return media item
+         */
         public MediaItem getItemAt(int row) {
             return items.get(row);
         }
@@ -366,7 +459,10 @@ public class DetailsPanel extends javax.swing.JPanel {
         }
     }
 
-    // ================= Model =================
+    /* ========================= MODEL ========================= */
+    /**
+     * Represents a media file (local, network or both).
+     */
     public static class MediaItem {
 
         public enum State {
@@ -380,6 +476,16 @@ public class DetailsPanel extends javax.swing.JPanel {
         private final Date modified;
         private State state;
 
+        /**
+         * Creates a new {@code MediaItem}.
+         *
+         * @param id media identifier
+         * @param name file name
+         * @param size file size in bytes
+         * @param type media type
+         * @param modified last modification date
+         * @param state media state
+         */
         public MediaItem(int id, String name, long size, String type, Date modified, State state) {
             this.id = id;
             this.name = name;
@@ -462,7 +568,7 @@ public class DetailsPanel extends javax.swing.JPanel {
 
         jButtonReturn.setText("Return");
         add(jButtonReturn);
-        jButtonReturn.setBounds(330, 550, 72, 23);
+        jButtonReturn.setBounds(330, 550, 90, 23);
 
         jTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
