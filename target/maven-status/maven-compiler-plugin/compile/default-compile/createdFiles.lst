@@ -3,6 +3,7 @@ adrover\antiads\panels\DetailsPanel.class
 adrover\antiads\use\AppColor.class
 adrover\antiads\Main$5.class
 adrover\antiads\Main$3.class
+adrover\antiads\panels\EditPanel$5.class
 adrover\antiads\panels\DetailsPanel$1.class
 adrover\antiads\dialogs\AboutDialog$1.class
 adrover\antiads\Main$8.class
@@ -24,6 +25,7 @@ adrover\antiads\Main$10.class
 adrover\antiads\Main$9.class
 adrover\antiads\panels\DetailsPanel$MediaTableModel.class
 adrover\antiads\Main$4.class
+adrover\antiads\panels\EditPanel$4.class
 adrover\antiads\Main$2.class
 adrover\antiads\Main$7.class
 adrover\antiads\panels\EditPanel.class

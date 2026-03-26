@@ -204,7 +204,7 @@ public final class Main extends javax.swing.JFrame {
         jLabelTitle.setText("DOWNLOAD WITHOUT ADS!");
         jLabelTitle.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         getContentPane().add(jLabelTitle);
-        jLabelTitle.setBounds(140, 30, 350, 40);
+        jLabelTitle.setBounds(130, 30, 350, 40);
 
         jTextFieldLink.setToolTipText("");
         jTextFieldLink.addActionListener(new java.awt.event.ActionListener() {
@@ -213,7 +213,7 @@ public final class Main extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jTextFieldLink);
-        jTextFieldLink.setBounds(150, 100, 280, 30);
+        jTextFieldLink.setBounds(120, 100, 310, 30);
 
         jButtonSearch.setText("Go");
         jButtonSearch.addActionListener(new java.awt.event.ActionListener() {
@@ -222,7 +222,7 @@ public final class Main extends javax.swing.JFrame {
             }
         });
         getContentPane().add(jButtonSearch);
-        jButtonSearch.setBounds(430, 100, 50, 30);
+        jButtonSearch.setBounds(430, 100, 70, 30);
         getContentPane().add(jProgressBar);
         jProgressBar.setBounds(150, 170, 330, 20);
 
@@ -244,11 +244,11 @@ public final class Main extends javax.swing.JFrame {
 
         jRadioButtonMP3.setText(".mp3");
         getContentPane().add(jRadioButtonMP3);
-        jRadioButtonMP3.setBounds(150, 140, 50, 21);
+        jRadioButtonMP3.setBounds(150, 140, 80, 21);
 
         jRadioButtonMP4.setText(".mp4");
         getContentPane().add(jRadioButtonMP4);
-        jRadioButtonMP4.setBounds(260, 140, 50, 21);
+        jRadioButtonMP4.setBounds(260, 140, 80, 21);
 
         jButtonDetails.setText("Details");
         jButtonDetails.addActionListener(new java.awt.event.ActionListener() {
@@ -539,12 +539,17 @@ public final class Main extends javax.swing.JFrame {
         }
 
         // Prevent multiple downloads at once
-        jButtonSearch.setEnabled(false);
         jProgressBar.setValue(0);
         jTextAreaDownload.setText("Preparing download...\n");
 
         // Path to yt-dlp.exe
-        String ytDlpPath = "C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe";
+        String ytDlpPath = editPanel.getYtDlpPath();
+        if (ytDlpPath.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select the yt-dlp executable path",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         // Output folder (Downloads)
         String outputDir = System.getProperty("user.home") + "\\Downloads";
@@ -736,7 +741,7 @@ public final class Main extends javax.swing.JFrame {
             //Detect the latest downloaded video file
             java.io.File folder = new java.io.File(outputDir);
             java.io.File[] files = folder.listFiles((dir, name)
-                    -> name.endsWith(".mp4")); //|| name.endsWith(".mkv") || name.endsWith(".webm"));
+                    -> name.endsWith(".mp4"));
             if (files != null && files.length > 0) {
                 java.util.Arrays.sort(files, java.util.Comparator.comparingLong(java.io.File::lastModified).reversed());
                 lastDownloadedFile = files[0]; // most recent video

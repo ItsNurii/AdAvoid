@@ -80,15 +80,22 @@ public class EditPanel extends javax.swing.JPanel {
         jTextFieldYtDlp.setFont(textFieldFont);
 
         // Botones
-        jButtonBrowse.setFont(buttonFont);
+        jButtonBrowse1.setFont(buttonFont);
+        jButtonBrowse2.setFont(buttonFont);
         jButtonBack.setFont(buttonFont);
 
         // Opcional: cambiar estilo de los botones (por ejemplo, sin foco y borde plano)
-        jButtonBrowse.setFocusPainted(false);
+        jButtonBrowse1.setFocusPainted(false);
+        jButtonBrowse2.setFocusPainted(false);
         jButtonBack.setFocusPainted(false);
-        jButtonBrowse.setBorder(BorderFactory.createRaisedBevelBorder());
+        jButtonBrowse1.setBorder(BorderFactory.createRaisedBevelBorder());
+        jButtonBrowse2.setBorder(BorderFactory.createRaisedBevelBorder());
         jButtonBack.setBorder(BorderFactory.createRaisedBevelBorder());
         applyTheme(darkMode);
+    }
+
+    public String getYtDlpPath() {
+        return jTextFieldYtDlp.getText().trim();
     }
 
     /**
@@ -103,12 +110,13 @@ public class EditPanel extends javax.swing.JPanel {
         jLabelTitle = new javax.swing.JLabel();
         jLabelPath = new javax.swing.JLabel();
         jTextFieldPath = new javax.swing.JTextField();
-        jButtonBrowse = new javax.swing.JButton();
+        jButtonBrowse2 = new javax.swing.JButton();
         jLabelSpeed = new javax.swing.JLabel();
         jLabelYtDlp = new javax.swing.JLabel();
         jTextFieldYtDlp = new javax.swing.JTextField();
         jButtonBack = new javax.swing.JButton();
         jSpinnerTime = new javax.swing.JSpinner();
+        jButtonBrowse1 = new javax.swing.JButton();
 
         setLayout(null);
 
@@ -120,18 +128,22 @@ public class EditPanel extends javax.swing.JPanel {
         add(jLabelPath);
         jLabelPath.setBounds(200, 60, 320, 40);
 
-        jTextFieldPath.setText("C:\\Users\\nuria\\Downloads");
+        jTextFieldPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldPathActionPerformed(evt);
+            }
+        });
         add(jTextFieldPath);
         jTextFieldPath.setBounds(200, 100, 250, 40);
 
-        jButtonBrowse.setText("Browse");
-        jButtonBrowse.addActionListener(new java.awt.event.ActionListener() {
+        jButtonBrowse2.setText("Browse");
+        jButtonBrowse2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonBrowseActionPerformed(evt);
+                jButtonBrowse2ActionPerformed(evt);
             }
         });
-        add(jButtonBrowse);
-        jButtonBrowse.setBounds(460, 100, 90, 30);
+        add(jButtonBrowse2);
+        jButtonBrowse2.setBounds(550, 190, 90, 30);
 
         jLabelSpeed.setText("Speed:");
         add(jLabelSpeed);
@@ -140,12 +152,10 @@ public class EditPanel extends javax.swing.JPanel {
         jLabelYtDlp.setText("Location of yt-dlp binary:");
         add(jLabelYtDlp);
         jLabelYtDlp.setBounds(200, 160, 210, 20);
-
-        jTextFieldYtDlp.setText("C:\\Users\\nuria\\AppData\\Local\\yt-dlp\\yt-dlp.exe");
         add(jTextFieldYtDlp);
         jTextFieldYtDlp.setBounds(200, 190, 340, 40);
 
-        jButtonBack.setText("Return");
+        jButtonBack.setText("Save & Return");
         jButtonBack.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonBackActionPerformed(evt);
@@ -157,6 +167,15 @@ public class EditPanel extends javax.swing.JPanel {
         jSpinnerTime.setModel(new javax.swing.SpinnerNumberModel(5, null, null, 1));
         add(jSpinnerTime);
         jSpinnerTime.setBounds(320, 270, 70, 30);
+
+        jButtonBrowse1.setText("Browse");
+        jButtonBrowse1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonBrowse1ActionPerformed(evt);
+            }
+        });
+        add(jButtonBrowse1);
+        jButtonBrowse1.setBounds(460, 100, 90, 30);
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -189,8 +208,10 @@ public class EditPanel extends javax.swing.JPanel {
         jTextFieldYtDlp.setForeground(text);
 
         // Botones
-        jButtonBrowse.setBackground(btn);
-        jButtonBrowse.setForeground(text);
+        jButtonBrowse1.setBackground(btn);
+        jButtonBrowse1.setForeground(text);
+        jButtonBrowse2.setBackground(btn);
+        jButtonBrowse2.setForeground(text);
 
         jButtonBack.setBackground(btn);
         jButtonBack.setForeground(text);
@@ -250,13 +271,25 @@ public class EditPanel extends javax.swing.JPanel {
      *
      * @param evt action event triggered by the browse button
      */
-    private void jButtonBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowseActionPerformed
+    private void jButtonBrowse2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowse2ActionPerformed
         JFileChooser chooser = new JFileChooser();
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            jTextFieldPath.setText(chooser.getSelectedFile().getAbsolutePath());
+
+        // Carpeta por defecto donde normalmente está yt-dlp
+        String userHome = System.getProperty("user.home");
+        java.io.File defaultDir = new java.io.File(userHome, "AppData\\Local\\yt-dlp");
+        if (!defaultDir.exists()) {
+            defaultDir = new java.io.File(userHome); // fallback si no existe
         }
-    }//GEN-LAST:event_jButtonBrowseActionPerformed
+        chooser.setCurrentDirectory(defaultDir);
+
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setDialogTitle("Select yt-dlp executable");
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Executable files", "exe"));
+
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            jTextFieldYtDlp.setText(chooser.getSelectedFile().getAbsolutePath());
+        }
+    }//GEN-LAST:event_jButtonBrowse2ActionPerformed
 
     /**
      * Returns to the main application panel.
@@ -272,10 +305,29 @@ public class EditPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jButtonBackActionPerformed
 
+    private void jButtonBrowse1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBrowse1ActionPerformed
+        JFileChooser chooser = new JFileChooser();
+
+        // Indicar carpeta por defecto (Descargas del usuario)
+        String userHome = System.getProperty("user.home"); // ruta al usuario
+        java.io.File defaultDir = new java.io.File(userHome, "Downloads");
+        chooser.setCurrentDirectory(defaultDir);
+
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            jTextFieldPath.setText(chooser.getSelectedFile().getAbsolutePath());
+        }
+    }//GEN-LAST:event_jButtonBrowse1ActionPerformed
+
+    private void jTextFieldPathActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldPathActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldPathActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBack;
-    private javax.swing.JButton jButtonBrowse;
+    private javax.swing.JButton jButtonBrowse1;
+    private javax.swing.JButton jButtonBrowse2;
     private javax.swing.JLabel jLabelPath;
     private javax.swing.JLabel jLabelSpeed;
     private javax.swing.JLabel jLabelTitle;
